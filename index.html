@@ -2,7 +2,6 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Seleziona Giocatori</title>
   <style>
     body {
@@ -11,10 +10,9 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
+      justify-content: center;
+      height: 100vh;
       margin: 0;
-      padding: 20px;
     }
 
     h2 {
@@ -48,16 +46,14 @@
       background-color: rgba(0,0,0,0.6);
       align-items: center;
       justify-content: center;
-      padding: 10px;
     }
 
     .modal-content {
       background-color: white;
       border-radius: 12px;
       padding: 20px;
-      width: 100%;
-      max-width: 400px;
-      max-height: 90vh;
+      width: 350px;
+      max-height: 80vh;
       overflow: hidden;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
       display: flex;
@@ -100,29 +96,28 @@
       border-bottom: none;
     }
 
-    /* Final Modal */
+    /* Final Modal Specific */
     #finalModal .modal-content {
-      width: 100%;
-      max-width: 420px;
+      width: 400px;
     }
 
     .team-buttons {
       display: flex;
-      gap: 15px;
+      gap: 20px;
       margin-top: 20px;
       justify-content: center;
       flex-wrap: wrap;
     }
 
     .team-button {
-      padding: 14px 16px;
+      padding: 16px 20px;
       color: white;
-      font-size: 15px;
+      font-size: 16px;
       font-weight: bold;
       border: none;
       border-radius: 10px;
       cursor: pointer;
-      flex: 1 1 45%;
+      flex: 1 1 40%;
       transition: background 0.3s;
       white-space: pre-line;
       text-align: center;
@@ -143,54 +138,6 @@
     .team2:hover {
       background-color: #2980b9;
     }
-
-    /* Media Query per dispositivi mobili */
-    @media (max-width: 768px) {
-      .modal-content {
-        padding: 16px;
-        max-width: 90%;
-      }
-
-      #addGameBtn {
-        padding: 10px 18px;
-        font-size: 14px;
-      }
-
-      .player-item {
-        font-size: 14px;
-      }
-
-      .team-button {
-        padding: 12px 14px;
-        font-size: 14px;
-      }
-
-      .team-buttons {
-        gap: 10px;
-      }
-    }
-
-    /* Media Query per schermi molto piccoli (smartphone) */
-    @media (max-width: 480px) {
-      .team-button {
-        font-size: 13px;
-        padding: 12px;
-      }
-
-      #addGameBtn {
-        padding: 10px;
-        font-size: 14px;
-      }
-
-      .player-item {
-        font-size: 12px;
-        padding: 10px;
-      }
-
-      .modal-content {
-        padding: 14px;
-      }
-    }
   </style>
 </head>
 <body>
@@ -206,7 +153,7 @@
     </div>
   </div>
 
-  <!-- Modale scelta squadra vincente -->
+  <!-- Modale scelta squadra vincitrice -->
   <div id="finalModal" class="modal">
     <div class="modal-content">
       <h3>Quale squadra ha vinto?</h3>
@@ -290,7 +237,7 @@
     }
 
     team1Btn.onclick = function () {
-      alert("Ha vinto la Squadra 1! Zio porco");
+      alert("Ha vinto la Squadra 1!");
       finalModal.style.display = "none";
     };
 
