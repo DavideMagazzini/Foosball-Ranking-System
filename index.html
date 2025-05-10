@@ -144,19 +144,51 @@
       background-color: #2980b9;
     }
 
-    @media (max-width: 480px) {
-      .team-button {
-        flex: 1 1 100%;
-        font-size: 14px;
-      }
-
+    /* Media Query per dispositivi mobili */
+    @media (max-width: 768px) {
       .modal-content {
         padding: 16px;
+        max-width: 90%;
       }
 
       #addGameBtn {
         padding: 10px 18px;
-        font-size: 15px;
+        font-size: 14px;
+      }
+
+      .player-item {
+        font-size: 14px;
+      }
+
+      .team-button {
+        padding: 12px 14px;
+        font-size: 14px;
+      }
+
+      .team-buttons {
+        gap: 10px;
+      }
+    }
+
+    /* Media Query per schermi molto piccoli (smartphone) */
+    @media (max-width: 480px) {
+      .team-button {
+        font-size: 13px;
+        padding: 12px;
+      }
+
+      #addGameBtn {
+        padding: 10px;
+        font-size: 14px;
+      }
+
+      .player-item {
+        font-size: 12px;
+        padding: 10px;
+      }
+
+      .modal-content {
+        padding: 14px;
       }
     }
   </style>
