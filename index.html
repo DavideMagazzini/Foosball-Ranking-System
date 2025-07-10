@@ -200,7 +200,7 @@
     function updateModalStyle() {
       modalContent.classList.remove("red-bg", "blue-bg");
       modalContent.classList.add(step < 2 ? "red-bg" : "blue-bg");
-      modalTitle.textContent = `Seleziona il ${step % 2 == 0 ? "portiere" : "attaccante"}`;
+      modalTitle.textContent = `Seleziona ${step % 2 == 0 ? "il portiere" : "l'attaccante"}`;
     }
 
     function updatePlayerList() {
