@@ -1,26 +1,7 @@
 from pymongo import MongoClient
 import datetime
-
-class Player:
-    def __init__(self, name: str, last_name: str, def_score: int = 1000, atk_score: int = 1000):
-        self.name = name
-        self.last_name = last_name
-        self.def_score = def_score
-        self.atk_score = atk_score
-
-
-class Game:
-    def __init__(self, gameID: str, date: datetime, redDefPlayerID: str, redAtkPlayerID: str,
-                 blueDefPlayerID: str, blueAtkPlayerID: str, winnerTeamColor: str):
-        
-        if winnerTeamColor not in ['red', 'blue']: raise ValueError('winnerTeamColor has to be between red and blue')
-        self.gameID = gameID
-        self.date = date
-        self.redDefPlayerID = redDefPlayerID
-        self.redAtkPlayerID = redAtkPlayerID
-        self.blueDefPlayerID = blueDefPlayerID
-        self.blueAtkPlayerID = blueAtkPlayerID
-        self.winnerTeamColor = winnerTeamColor
+from models.game import Game
+from models.player import Player
 
 class DatabaseWrapper():
     def __init__(self):
@@ -70,19 +51,36 @@ class DatabaseWrapper():
         new_entry = {
             'gameID': game.gameID,
             'date': game.date,
-            'redDefPlayerID': game.redDefPlayerID,
-            'redAtkPlayerID': game.redAtkPlayerID,
-            'blueDefPlayerID': game.blueDefPlayerID,
-            'blueAtkPlayerID': game.blueAtkPlayerID,
+            'redDefPlayer': {'name': game.redDefPlayer.name,
+                             'last_name': game.redDefPlayer.last_name,
+                             'def_score': game.redDefPlayer.def_score,
+                             'atk_score': game.redDefPlayer.atk_score},
+            'redAtkPlayer': {'name': game.redAtkPlayer.name,
+                             'last_name': game.redAtkPlayer.last_name,
+                             'def_score': game.redAtkPlayer.def_score,
+                             'atk_score': game.redAtkPlayer.atk_score},
+            'blueDefPlayer': {'name': game.blueDefPlayer.name,
+                              'last_name': game.blueDefPlayer.last_name,
+                              'def_score': game.blueDefPlayer.def_score,
+                              'atk_score': game.blueDefPlayer.atk_score},
+            'blueAtkPlayer': {'name': game.blueAtkPlayer.name,
+                              'last_name': game.blueAtkPlayer.last_name,
+                              'def_score': game.blueAtkPlayer.def_score,
+                              'atk_score': game.blueAtkPlayer.atk_score},
             'winnerTeamColor': game.winnerTeamColor
-        }
+            }
+        
 
         # Insert the game
         result = self.games.insert_one(new_entry)
 
 
     
-game = Game('12', datetime.datetime.now(), '1', '2', '2', '3', 'blue')
+player1 = Player('asda', 'asdn')
+player2 = Player('Coso', 'Dei cosis', 100, 20)
+player3 = Player('Maremma', 'Maiala', 2100, 20)
+player4 = Player('Puttana', 'Troia', 1002, 2011)
 
+game = Game('12', datetime.datetime.now(), player1, player3, player2, player4, 'red')
 db_wrapper = DatabaseWrapper()
 db_wrapper.addGame(game=game)
