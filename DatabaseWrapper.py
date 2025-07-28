@@ -1,4 +1,5 @@
 from pymongo import MongoClient
+import datetime
 
 class Player:
     def __init__(self, name: str, last_name: str, def_score: int = 1000, atk_score: int = 1000):
@@ -6,6 +7,20 @@ class Player:
         self.last_name = last_name
         self.def_score = def_score
         self.atk_score = atk_score
+
+
+class Game:
+    def __init__(self, gameID: str, date: datetime, redDefPlayerID: str, redAtkPlayerID: str,
+                 blueDefPlayerID: str, blueAtkPlayerID: str, winnerTeamColor: str):
+        
+        if winnerTeamColor not in ['red', 'blue']: raise ValueError('winnerTeamColor has to be between red and blue')
+        self.gameID = gameID
+        self.date = date
+        self.redDefPlayerID = redDefPlayerID
+        self.redAtkPlayerID = redAtkPlayerID
+        self.blueDefPlayerID = blueDefPlayerID
+        self.blueAtkPlayerID = blueAtkPlayerID
+        self.winnerTeamColor = winnerTeamColor
 
 class DatabaseWrapper():
     def __init__(self):
@@ -51,8 +66,23 @@ class DatabaseWrapper():
         return res
 
 
-    
+    def addGame(self, game: Game):
+        new_entry = {
+            'gameID': game.gameID,
+            'date': game.date,
+            'redDefPlayerID': game.redDefPlayerID,
+            'redAtkPlayerID': game.redAtkPlayerID,
+            'blueDefPlayerID': game.blueDefPlayerID,
+            'blueAtkPlayerID': game.blueAtkPlayerID,
+            'winnerTeamColor': game.winnerTeamColor
+        }
 
+        # Insert the game
+        result = self.games.insert_one(new_entry)
+
+
+    
+game = Game('12', datetime.datetime.now(), '1', '2', '2', '3', 'blue')
 
 db_wrapper = DatabaseWrapper()
-db_wrapper.updatePlayerScore(player=Player('Davide', 'Magazzini'), new_score=1800, isDefScore=False)
+db_wrapper.addGame(game=game)
