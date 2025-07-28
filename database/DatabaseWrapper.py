@@ -74,6 +74,13 @@ class DatabaseWrapper():
         # Insert the game
         result = self.games.insert_one(new_entry)
 
+    
+    def getGameById(self, game_id: str) -> Game:
+        pass
+
+    def getPlayerById(self, player_id: str) -> Player:
+        pass
+
 
     
 player1 = Player('asda', 'asdn')
