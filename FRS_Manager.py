@@ -1,13 +1,14 @@
 from database.DatabaseWrapper import DatabaseWrapper
 from models.game import Game
 from models.player import Player
+from models.score import Score
 import datetime
 from dataclasses import asdict
+import names
 
-db_wrapper = DatabaseWrapper()
-# player = Player('s', 's', 's')
-game = Game('158', datetime.datetime.now(), Player('12','Gesu','Bambino'), Player('a','Coso','aa'), Player('a','mrm','amaialaa'), Player('2a','23','cosi'),'blue')
-db_wrapper.addGame(game)
-print(asdict(game))
+from flask import Flask
+app = Flask(__name__)
 
-print(db_wrapper.getPlayerById(''))
+@app.route('/')
+def index():
+    return 'Hello world!'

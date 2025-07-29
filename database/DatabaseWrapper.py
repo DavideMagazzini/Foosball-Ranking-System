@@ -5,6 +5,7 @@ from models.game import Game
 from models.player import Player
 from models.score import Score
 from dataclasses import asdict
+from bson import ObjectId
 
 class DatabaseWrapper():
     def __init__(self):
@@ -20,19 +21,11 @@ class DatabaseWrapper():
 
 
     def addPlayer(self, player: Player):
-        new_entry = {
-            'name': player.name,
-            'last_name': player.last_name,
-            'def_score': {'mu': player.def_score.mu,
-                          'sigma': player.def_score.sigma,
-                          'rank': player.def_score.rank},
-            'atk_score': {'mu': player.atk_score.mu,
-                          'sigma': player.atk_score.sigma,
-                          'rank': player.atk_score.rank}
-        }
+        new_entry = asdict(player)
 
         # Insert the player
         result = self.players.insert_one(new_entry)
+        return result
 
     def updatePlayerScore(self, player: Player, new_score: Score, isDefScore: bool = True):
         filter = {
@@ -65,11 +58,15 @@ class DatabaseWrapper():
         return result
 
     
-    def getGameById(self, game_id: str) -> Game:
-        return self.games.find_one({'id': game_id})
+    def getGameById(self, game_id: str | ObjectId) -> Game:
+        return self.games.find_one({'_id': game_id})
 
-    def getPlayerById(self, player_id: str) -> Player:
-        return self.players.find_one({'id': player_id})
+    def getPlayerById(self, player_id: str | ObjectId) -> Player:
+        return self.players.find_one({'_id': player_id})
+    
+    def getPlayers(self):
+        return self.players.find({})
+
 
 
 if __name__ == '__main__':
