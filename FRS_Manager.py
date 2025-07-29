@@ -4,7 +4,7 @@ from models.player import Player
 from models.score import Score
 import datetime
 from dataclasses import asdict
-import names
+
 
 from flask import Flask
 app = Flask(__name__)
