@@ -1,7 +1,11 @@
+from models.score import Score
+from dataclasses import dataclass, field
+
+@dataclass
 class Player:
-    def __init__(self, id: str, name: str, last_name: str, def_score: int = 1000, atk_score: int = 1000):
-        self.id = id
-        self.name = name
-        self.last_name = last_name
-        self.def_score = def_score
-        self.atk_score = atk_score
+    id: str
+    name: str
+    last_name: str
+    def_score: Score = field(default_factory=Score)
+    atk_score: Score = field(default_factory=Score)
+

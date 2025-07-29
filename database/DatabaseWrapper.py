@@ -2,6 +2,8 @@ from pymongo import MongoClient
 import datetime
 from models.game import Game
 from models.player import Player
+from models.score import Score
+from dataclasses import asdict
 
 class DatabaseWrapper():
     def __init__(self):
@@ -20,26 +22,33 @@ class DatabaseWrapper():
         new_entry = {
             'name': player.name,
             'last_name': player.last_name,
-            'def_score': player.def_score,
-            'atk_score': player.atk_score
+            'def_score': {'mu': player.def_score.mu,
+                          'sigma': player.def_score.sigma,
+                          'rank': player.def_score.rank},
+            'atk_score': {'mu': player.atk_score.mu,
+                          'sigma': player.atk_score.sigma,
+                          'rank': player.atk_score.rank}
         }
 
         # Insert the player
         result = self.players.insert_one(new_entry)
 
-    def updatePlayerScore(self, player: Player, new_score: int, isDefScore: bool = True):
+    def updatePlayerScore(self, player: Player, new_score: Score, isDefScore: bool = True):
         filter = {
-            'name': player.name,
-            'last_name': player.last_name
+            '_id': player.id
         }
         
         if isDefScore:
             new_score = {
-                '$set': {'def_score': new_score}
+                '$set': {'def_score.mu': new_score.mu,
+                         'def_score.sigma': new_score.sigma,
+                         'def_score.rank': new_score.rank}
             }
         else:
             new_score = {
-                '$set': {'atk_score': new_score}
+                '$set': {'atk_score.mu': new_score.mu,
+                         'atk_score.sigma': new_score.sigma,
+                         'atk_score.rank': new_score.rank}
             }
 
         res = self.players.find_one_and_update(filter=filter, update=new_score)
@@ -49,7 +58,7 @@ class DatabaseWrapper():
 
     def addGame(self, game: Game):
         new_entry = {
-            'gameID': game.gameID,
+            'gameID': game.id,
             'date': game.date,
             'redDefPlayer': {'name': game.redDefPlayer.name,
                              'last_name': game.redDefPlayer.last_name,
@@ -70,6 +79,8 @@ class DatabaseWrapper():
             'winnerTeamColor': game.winnerTeamColor
             }
         
+        new_entry = asdict(game)
+        
 
         # Insert the game
         result = self.games.insert_one(new_entry)
@@ -79,15 +90,18 @@ class DatabaseWrapper():
         pass
 
     def getPlayerById(self, player_id: str) -> Player:
-        pass
+        return self.players.find({'name': 'Davide'})
 
 
+if __name__ == '__main__':
     
-player1 = Player('asda', 'asdn')
-player2 = Player('Coso', 'Dei cosis', 100, 20)
-player3 = Player('Maremma', 'Maiala', 2100, 20)
-player4 = Player('Puttana', 'Troia', 1002, 2011)
+    player1 = Player('1', 'asda', 'asdn')
+    player2 = Player('123123', 'Coso', 'Dei cosis', 100, 20)
+    player3 = Player('fgh', 'Maremma', 'Maiala', 2100, 20)
+    player4 = Player('kasn', 'Puttana', 'Troia', 1002, 2011)
 
-game = Game('12', datetime.datetime.now(), player1, player3, player2, player4, 'red')
-db_wrapper = DatabaseWrapper()
-db_wrapper.addGame(game=game)
+    game = Game('12', datetime.datetime.now(), player1, player3, player2, player4, 'red')
+    db_wrapper = DatabaseWrapper()
+
+    print(db_wrapper.getPlayerById('s'))
+
