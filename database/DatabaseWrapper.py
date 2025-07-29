@@ -1,4 +1,5 @@
 from pymongo import MongoClient
+from pymongo.results import InsertOneResult
 import datetime
 from models.game import Game
 from models.player import Player
@@ -56,41 +57,19 @@ class DatabaseWrapper():
         return res
 
 
-    def addGame(self, game: Game):
-        new_entry = {
-            'gameID': game.id,
-            'date': game.date,
-            'redDefPlayer': {'name': game.redDefPlayer.name,
-                             'last_name': game.redDefPlayer.last_name,
-                             'def_score': game.redDefPlayer.def_score,
-                             'atk_score': game.redDefPlayer.atk_score},
-            'redAtkPlayer': {'name': game.redAtkPlayer.name,
-                             'last_name': game.redAtkPlayer.last_name,
-                             'def_score': game.redAtkPlayer.def_score,
-                             'atk_score': game.redAtkPlayer.atk_score},
-            'blueDefPlayer': {'name': game.blueDefPlayer.name,
-                              'last_name': game.blueDefPlayer.last_name,
-                              'def_score': game.blueDefPlayer.def_score,
-                              'atk_score': game.blueDefPlayer.atk_score},
-            'blueAtkPlayer': {'name': game.blueAtkPlayer.name,
-                              'last_name': game.blueAtkPlayer.last_name,
-                              'def_score': game.blueAtkPlayer.def_score,
-                              'atk_score': game.blueAtkPlayer.atk_score},
-            'winnerTeamColor': game.winnerTeamColor
-            }
-        
+    def addGame(self, game: Game) -> InsertOneResult:
         new_entry = asdict(game)
         
-
         # Insert the game
         result = self.games.insert_one(new_entry)
+        return result
 
     
     def getGameById(self, game_id: str) -> Game:
-        pass
+        return self.games.find_one({'id': game_id})
 
     def getPlayerById(self, player_id: str) -> Player:
-        return self.players.find({'name': 'Davide'})
+        return self.players.find_one({'id': player_id})
 
 
 if __name__ == '__main__':
