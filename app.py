@@ -9,7 +9,7 @@ db_wrap = DatabaseWrapper()
 def home():
     return render_template("index.html")
 
-@app.route('/esegui-azione', methods=['POST'])
+@app.route('/add-player', methods=['POST'])
 def esegui_azione():
     # Il tuo codice Python viene eseguito qui
     print("Pulsante premuto! Eseguo la funzione Python tramite JavaScript.")
