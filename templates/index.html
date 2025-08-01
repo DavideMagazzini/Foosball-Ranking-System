@@ -209,6 +209,117 @@
   </div>
 
   <!-- Il tuo JS resta invariato -->
+  <script>
+      const modal = document.getElementById("playerModal");
+      const modalContent = document.getElementById("modalContent");
+      const playerList = document.getElementById("playerList");
+      const addGameBtn = document.getElementById("addGameBtn");
+      const addPlayerBtn = document.getElementById("addPlayerBtn");
+      const modalTitle = document.getElementById("modalTitle");
 
+      const finalModal = document.getElementById("finalModal");
+      const team1Btn = document.getElementById("team1Btn");
+      const team2Btn = document.getElementById("team2Btn");
+
+      const allPlayers = [
+        "Giocatore 1",
+        "Giocatore 2",
+        "Giocatore 3",
+        "Giocatore 4",
+        "Giocatore 5",
+        "Giocatore 6"
+      ];
+
+      let availablePlayers = [];
+      let selectedPlayers = [];
+      let step = 0;
+
+      addGameBtn.onclick = function () {
+        selectedPlayers = [];
+        availablePlayers = [...allPlayers];
+        step = 0;
+        updateModalStyle();
+        updatePlayerList();
+        modal.style.display = "flex";
+      };
+
+      addPlayerBtn.onclick = function () {
+        modal.style.display = "flex"
+        fetch('/add-player', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(playerData),
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Success:', data);
+          alert('Player added successfully!');
+          modal.style.display = "none"; // Close modal on success
+          playerForm.reset(); // Clear the form fields
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+          alert('Error adding player.');
+        });
+      };
+
+      function updateModalStyle() {
+        modalContent.classList.remove("red-bg", "blue-bg");
+        modalContent.classList.add(step < 2 ? "red-bg" : "blue-bg");
+        modalTitle.textContent = `Seleziona ${step % 2 == 0 ? "il portiere" : "l'attaccante"}`;
+      }
+
+      function updatePlayerList() {
+        playerList.innerHTML = "";
+        availablePlayers.forEach(player => {
+          const item = document.createElement("div");
+          item.className = "player-item";
+          item.textContent = player;
+          item.onclick = () => selectPlayer(player);
+          playerList.appendChild(item);
+        });
+      }
+
+      function selectPlayer(player) {
+        selectedPlayers.push(player);
+        availablePlayers = availablePlayers.filter(p => p !== player);
+        step++;
+
+        if (step < 4) {
+          updateModalStyle();
+          updatePlayerList();
+        } else {
+          modal.style.display = "none";
+          showFinalModal();
+        }
+      }
+
+      function showFinalModal() {
+        const team1 = selectedPlayers.slice(0, 2).join('\n');
+        const team2 = selectedPlayers.slice(2, 4).join('\n');
+        team1Btn.textContent = team1;
+        team2Btn.textContent = team2;
+        finalModal.style.display = "flex";
+      }
+
+      team1Btn.onclick = function () {
+        alert("Ha vinto la Squadra 1! Maremma maiala");
+        finalModal.style.display = "none";
+      };
+
+      team2Btn.onclick = function () {
+        alert("Ha vinto la Squadra 2! Puttana dell'eva");
+        finalModal.style.display = "none";
+      };
+
+      window.onclick = function (event) {
+        if (event.target === modal || event.target === finalModal) {
+          modal.style.display = "none";
+          finalModal.style.display = "none";
+        }
+      };
+    </script>
 </body>
 </html>
