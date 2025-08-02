@@ -62,9 +62,24 @@ class DatabaseWrapper():
         return self.games.find_one({'_id': game_id})
 
     def getPlayerById(self, player_id: str | ObjectId) -> Player:
+        """
+        Retrieves a player from the database by its unique identifier.
+
+        Args:
+            player_id (str | ObjectId): The unique identifier of the player to retrieve.
+
+        Returns:
+            Player: The player class corresponding to the given ID, or None if not found.
+        """
         return self.players.find_one({'_id': player_id})
     
-    def getPlayers(self):
+    def getAllPlayers(self):
+        """
+        Retrieves all player records from the database.
+
+        Returns:
+            pymongo.cursor.Cursor: A cursor to iterate over all player documents.
+        """
         return self.players.find({})
 
 

@@ -161,6 +161,44 @@
       background-color: #2980b9;
     }
 
+    .scoreboard-container {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      padding: 24px;
+      margin-bottom: 24px;
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    .scoreboard-container h3 {
+      margin-bottom: 16px;
+      color: #3441f5;
+      font-size: 1.3em;
+    }
+
+    #scoreboardTable {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 1.05em;
+    }
+
+    #scoreboardTable th, #scoreboardTable td {
+      padding: 10px 8px;
+      border-bottom: 1px solid #eee;
+    }
+
+    #scoreboardTable th {
+      background: #f5f7ff;
+      color: #3441f5;
+      font-weight: 600;
+    }
+
+    #scoreboardTable tr:last-child td {
+      border-bottom: none;
+    }
+
     @media (max-width: 600px) {
       h2 {
         font-size: 1.5em;
@@ -188,6 +226,22 @@
   <h2>Game</h2>
   <button id="addGameBtn">Add Game</button>
   <button id="addPlayerBtn">Add Player</button>
+  
+  <div id="scoreboard" class="scoreboard-container">
+  <h3>Scoreboard</h3>
+  <table id="scoreboardTable">
+    <thead>
+      <tr>
+        <th>Rank</th>
+        <th>Name</th>
+        <th>Last Name</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Player rows will be inserted here by JS -->
+    </tbody>
+  </table>
+</div>
 
   <!-- Modale selezione giocatori -->
   <div id="playerModal" class="modal">
@@ -342,6 +396,41 @@
         alert("Ha vinto la Squadra 2! Puttana dell'eva");
         finalModal.style.display = "none";
       };
+
+      function loadScoreboard() {
+        console.log('Loading scoreboard...');
+        fetch('/get-players', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        
+        .then(response => response.json())
+        .then(players => {
+          const tbody = document.querySelector('#scoreboardTable tbody');
+          tbody.innerHTML = '';
+          // Sort players by rank (assuming lower rank is better)
+          players.forEach(player => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${player.rank}</td>
+              <td>${player.name}</td>
+              <td>${player.last_name}</td>
+            `;
+            tbody.appendChild(row);
+          });
+        })
+        .catch(err => {
+          console.error('Error loading scoreboard:', err);
+        });
+}
+
+// Load scoreboard on page load
+window.onload = function() {
+  console.log('Page loaded, loading scoreboard...');
+  loadScoreboard();
+      }
 
       window.onclick = function (event) {
         if (event.target === modal || event.target === finalModal || event.target === addPlayerForm) {
