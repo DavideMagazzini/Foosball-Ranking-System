@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 from database.DatabaseWrapper import DatabaseWrapper
 from models.player import Player
 app = Flask(__name__)
@@ -11,9 +11,15 @@ def home():
 
 @app.route('/add-player', methods=['POST'])
 def esegui_azione():
+    
     # Il tuo codice Python viene eseguito qui
     print("Pulsante premuto! Eseguo la funzione Python tramite JavaScript.")
-    db_wrap.addPlayer(Player('Prima', 'Prova'))
+
+    data = request.get_json()
+    name = data.get('playerName')
+    last_name = data.get('playerLastName')
+
+    db_wrap.addPlayer(Player(name=name, last_name=last_name))
     
     messaggio_di_successo = {"status": "OK", "messaggio": "Azione eseguita con successo!"}
     return jsonify(messaggio_di_successo)

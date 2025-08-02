@@ -185,7 +185,7 @@
 </head>
 <body>
 
-  <h2>Partita</h2>
+  <h2>Game</h2>
   <button id="addGameBtn">Add Game</button>
   <button id="addPlayerBtn">Add Player</button>
 
@@ -208,7 +208,27 @@
     </div>
   </div>
 
-  <!-- Il tuo JS resta invariato -->
+
+  <!-- Modale per aggiungere un giocatore -->
+  <div id="addPlayerForm" class="modal">
+    <div class="modal-content">
+      <h3 style="margin-bottom: 18px;">Adding Player</h3>
+      <div id="playerForm" style="width:100%; display:flex; flex-direction:column; align-items:center; gap:16px;">
+        <label for="playerName" style="font-size:1.1em; color:#333; margin-bottom:4px;">Name:</label>
+        <input type="text" id="playerName" name="playerName" required
+          style="padding:10px 14px; border:1px solid #ccc; border-radius:7px; font-size:1em; width:90%; box-sizing:border-box;">
+        <label for="playerLastName" style="font-size:1.1em; color:#333; margin-bottom:4px;">Last Name:</label>
+        <input type="text" id="playerLastName" name="playerLastName" required
+          style="padding:10px 14px; border:1px solid #ccc; border-radius:7px; font-size:1em; width:90%; box-sizing:border-box;">
+        <button type="submit" id="submitPlayerBtn"
+          style="background-color:#3441f5; color:white; border:none; border-radius:8px; padding:12px 24px; font-size:1em; cursor:pointer; transition:background 0.3s;">
+          Add
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
   <script>
       const modal = document.getElementById("playerModal");
       const modalContent = document.getElementById("modalContent");
@@ -220,6 +240,9 @@
       const finalModal = document.getElementById("finalModal");
       const team1Btn = document.getElementById("team1Btn");
       const team2Btn = document.getElementById("team2Btn");
+
+      const addPlayerForm = document.getElementById("addPlayerForm");
+      const submitPlayerBtn = document.getElementById("submitPlayerBtn");
 
       const allPlayers = [
         "Giocatore 1",
@@ -244,12 +267,19 @@
       };
 
       addPlayerBtn.onclick = function () {
+        document.getElementById('addPlayerForm').style.display = 'flex';
+      };
+
+      submitPlayerBtn.onclick = function () {
         fetch('/add-player', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(playerData),
+          body: JSON.stringify({
+            playerName: document.getElementById('playerName').value,
+            playerLastName: document.getElementById('playerLastName').value 
+          })
         })
         .then(response => response.json())
         .then(data => {
@@ -262,7 +292,7 @@
           console.error('Error:', error);
           alert('Error adding player.');
         });
-      };
+      }
 
       function updateModalStyle() {
         modalContent.classList.remove("red-bg", "blue-bg");
@@ -314,9 +344,10 @@
       };
 
       window.onclick = function (event) {
-        if (event.target === modal || event.target === finalModal) {
+        if (event.target === modal || event.target === finalModal || event.target === addPlayerForm) {
           modal.style.display = "none";
           finalModal.style.display = "none";
+          addPlayerForm.style.display = "none";
         }
       };
     </script>
