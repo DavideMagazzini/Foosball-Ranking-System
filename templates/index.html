@@ -339,7 +339,7 @@
         .then(data => {
           console.log('Success:', data);
           alert('Player added successfully!');
-          modal.style.display = "none"; // Close modal on success
+          addPlayerForm.style.display = "none"; // Close modal on success
           playerForm.reset(); // Clear the form fields
         })
         .catch((error) => {
