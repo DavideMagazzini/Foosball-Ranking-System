@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Seleziona Giocatori</title>
+  <title>Select Player</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -227,8 +227,8 @@
   <button id="addGameBtn">Add Game</button>
   <button id="addPlayerBtn">Add Player</button>
   
-  <div id="scoreboard" class="scoreboard-container">
-  <h3>Scoreboard</h3>
+  <div id="atk_scoreboard" class="scoreboard-container">
+  <h3>Attack Scoreboard</h3>
   <table id="scoreboardTable">
     <thead>
       <tr>
@@ -246,7 +246,7 @@
   <!-- Modale selezione giocatori -->
   <div id="playerModal" class="modal">
     <div id="modalContent" class="modal-content">
-      <h3 id="modalTitle">Seleziona un giocatore</h3>
+      <h3 id="modalTitle">Select a player</h3>
       <div class="player-list" id="playerList"></div>
     </div>
   </div>
@@ -254,7 +254,7 @@
   <!-- Modale scelta squadra vincitrice -->
   <div id="finalModal" class="modal">
     <div class="modal-content">
-      <h3>Quale squadra ha vinto?</h3>
+      <h3>Which team won?</h3>
       <div class="team-buttons">
         <button id="team1Btn" class="team-button team1"></button>
         <button id="team2Btn" class="team-button team2"></button>
@@ -351,7 +351,7 @@
       function updateModalStyle() {
         modalContent.classList.remove("red-bg", "blue-bg");
         modalContent.classList.add(step < 2 ? "red-bg" : "blue-bg");
-        modalTitle.textContent = `Seleziona ${step % 2 == 0 ? "il portiere" : "l'attaccante"}`;
+        modalTitle.textContent = `Select ${step % 2 == 0 ? "the goalkeeper" : "attacker"}`;
       }
 
       function updatePlayerList() {
@@ -388,12 +388,12 @@
       }
 
       team1Btn.onclick = function () {
-        alert("Ha vinto la Squadra 1! Maremma maiala");
+        alert("Team red won!");
         finalModal.style.display = "none";
       };
 
       team2Btn.onclick = function () {
-        alert("Ha vinto la Squadra 2! Puttana dell'eva");
+        alert("Team blue won!");
         finalModal.style.display = "none";
       };
 
