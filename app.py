@@ -1,6 +1,7 @@
 from flask import Flask, render_template, jsonify, request
 from database.DatabaseWrapper import DatabaseWrapper
 from models.player import Player
+from models.game import Game
 app = Flask(__name__)
 
 db_wrap = DatabaseWrapper()
@@ -21,7 +22,7 @@ def add_player():
 
     db_wrap.addPlayer(Player(name=name, last_name=last_name))
     
-    messaggio_di_successo = {"status": "OK", "messaggio": "Azione eseguita con successo!"}
+    messaggio_di_successo = {"status": "OK", "message": "Player addedd successfully"}
     return jsonify(messaggio_di_successo)
 
 @app.route('/get-players', methods=['GET'])
@@ -39,6 +40,10 @@ def get_players():
                     'last_name': player['last_name'], 
                     'rank': player['atk_score']['rank']} for player in players])
 
-
+ def add_game():
+     """
+     Add the game to the database
+     """
+     # db_wrap.addGame(Game())
 if __name__ == "__main__":
     app.run(debug=True)
