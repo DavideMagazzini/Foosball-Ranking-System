@@ -178,24 +178,45 @@
       font-size: 1.3em;
     }
 
-    #scoreboardTable {
+    #defScoreboardTable {
       width: 100%;
       border-collapse: collapse;
       font-size: 1.05em;
     }
 
-    #scoreboardTable th, #scoreboardTable td {
+    #defScoreboardTable th, #defScoreboardTable td {
       padding: 10px 8px;
       border-bottom: 1px solid #eee;
     }
 
-    #scoreboardTable th {
+    #defScoreboardTable th {
       background: #f5f7ff;
       color: #3441f5;
       font-weight: 600;
     }
 
-    #scoreboardTable tr:last-child td {
+    #defScoreboardTable tr:last-child td {
+      border-bottom: none;
+    }
+
+    #atkScoreboardTable {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 1.05em;
+    }
+
+    #atkScoreboardTable th, #atkScoreboardTable td {
+      padding: 10px 8px;
+      border-bottom: 1px solid #eee;
+    }
+
+    #atkScoreboardTable th {
+      background: #f5f7ff;
+      color: #3441f5;
+      font-weight: 600;
+    }
+
+    #atkScoreboardTable tr:last-child td {
       border-bottom: none;
     }
 
@@ -223,18 +244,33 @@
 </head>
 <body>
 
-  <h2>Game</h2>
+  <h2>Foosball Rankings</h2>
   <button id="addGameBtn">Add Game</button>
   <button id="addPlayerBtn">Add Player</button>
   
-  <div id="atk_scoreboard" class="scoreboard-container">
-  <h3>Attack Scoreboard</h3>
-  <table id="scoreboardTable">
+  <div id="def_scoreboard" class="scoreboard-container">
+  <h3>Defense Scoreboard</h3>
+  <table id="defScoreboardTable">
     <thead>
       <tr>
         <th>Rank</th>
-        <th>Name</th>
-        <th>Last Name</th>
+        <th>Player</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Player rows will be inserted here by JS -->
+    </tbody>
+  </table>
+</div>
+
+
+<div id="atk_scoreboard" class="scoreboard-container">
+  <h3>Attack Scoreboard</h3>
+  <table id="atkScoreboardTable">
+    <thead>
+      <tr>
+        <th>Rank</th>
+        <th>Player</th>
       </tr>
     </thead>
     <tbody>
@@ -408,19 +444,28 @@
         
         .then(response => response.json())
         .then(players => {
-          const tbody = document.querySelector('#scoreboardTable tbody');
-          tbody.innerHTML = '';
+          const defTbody = document.querySelector('#defScoreboardTable tbody');
+          const atkTbody = document.querySelector('#atkScoreboardTable tbody');
+          defTbody.innerHTML = '';
+          atkTbody.innerHTML = '';
           // Sort players by rank (assuming lower rank is better)
+
           players.forEach(player => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-              <td>${player.rank}</td>
-              <td>${player.name}</td>
-              <td>${player.last_name}</td>
+            const defRow = document.createElement('tr');
+            defRow.innerHTML = `
+              <td>${player.def_rank}</td>
+              <td>${player.name + ' ' + player.last_name}</td>
             `;
-            tbody.appendChild(row);
+            defTbody.appendChild(defRow);
+            const atkRow = document.createElement('tr');
+            atkRow.innerHTML = `
+              <td>${player.atk_rank}</td>
+              <td>${player.name + ' ' + player.last_name}</td>
+            `;
+            atkTbody.appendChild(atkRow);
           });
         })
+        .then
         .catch(err => {
           console.error('Error loading scoreboard:', err);
         });

@@ -38,12 +38,16 @@ def get_players():
     
     return jsonify([{'name': player['name'], 
                     'last_name': player['last_name'], 
-                    'rank': player['atk_score']['rank']} for player in players])
+                    'def_rank': player['def_score']['rank'],
+                    'atk_rank': player['atk_score']['rank']} for player in players])
 
- def add_game():
-     """
-     Add the game to the database
-     """
-     # db_wrap.addGame(Game())
+def add_game():
+    """
+    Add the game to the database
+    """
+    # db_wrap.addGame(Game())
+    pass
+
+
 if __name__ == "__main__":
     app.run(debug=True)
