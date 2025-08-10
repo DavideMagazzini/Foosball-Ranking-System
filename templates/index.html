@@ -240,6 +240,29 @@
         padding: 12px;
       }
     }
+
+    .scoreboards-row {
+      display: flex;
+      gap: 32px;
+      justify-content: center;
+      align-items: flex-start;
+      width: 100%;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .scoreboard-container {
+      flex: 1 1 350px;
+      min-width: 280px;
+      max-width: 500px;
+    }
+
+    @media (max-width: 900px) {
+      .scoreboards-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
   </style>
 </head>
 <body>
@@ -248,36 +271,37 @@
   <button id="addGameBtn">Add Game</button>
   <button id="addPlayerBtn">Add Player</button>
   
-  <div id="def_scoreboard" class="scoreboard-container">
-  <h3>Defense Scoreboard</h3>
-  <table id="defScoreboardTable">
-    <thead>
-      <tr>
-        <th>Rank</th>
-        <th>Player</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Player rows will be inserted here by JS -->
-    </tbody>
-  </table>
-</div>
+  <div class="scoreboards-row">
+    <div id="def_scoreboard" class="scoreboard-container">
+      <h3>Defenders Scoreboard</h3>
+      <table id="defScoreboardTable">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Player</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Player rows will be inserted here by JS -->
+        </tbody>
+      </table>
+    </div>
 
-
-<div id="atk_scoreboard" class="scoreboard-container">
-  <h3>Attack Scoreboard</h3>
-  <table id="atkScoreboardTable">
-    <thead>
-      <tr>
-        <th>Rank</th>
-        <th>Player</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Player rows will be inserted here by JS -->
-    </tbody>
-  </table>
-</div>
+    <div id="atk_scoreboard" class="scoreboard-container">
+      <h3>Attackers Scoreboard</h3>
+      <table id="atkScoreboardTable">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Player</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Player rows will be inserted here by JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
 
   <!-- Modale selezione giocatori -->
   <div id="playerModal" class="modal">
