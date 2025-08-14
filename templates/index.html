@@ -535,8 +535,8 @@
         atkTbody.innerHTML = '';
 
         // Sort players by rank for each scoreboard
-        const sortedDef = [...allPlayers].sort((a, b) => a.def_score['rank'] - b.def_score['rank']);
-        const sortedAtk = [...allPlayers].sort((a, b) => a.atk_score['rank'] - b.atk_score['rank']);
+        const sortedDef = [...allPlayers].sort((a, b) => b.def_score['rank'] - a.def_score['rank']);
+        const sortedAtk = [...allPlayers].sort((a, b) => b.atk_score['rank'] - a.atk_score['rank']);
 
         // Trophy icons for top 3
         const trophyIcons = [
