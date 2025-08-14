@@ -145,19 +145,19 @@
       text-align: center;
     }
 
-    .team1 {
+    .teamRed {
       background-color: #e74c3c;
     }
 
-    .team2 {
+    .teamBlue {
       background-color: #3498db;
     }
 
-    .team1:hover {
+    .teamRed:hover {
       background-color: #c0392b;
     }
 
-    .team2:hover {
+    .teamBlue:hover {
       background-color: #2980b9;
     }
 
@@ -271,9 +271,11 @@
   <button id="addGameBtn">Add Game</button>
   <button id="addPlayerBtn">Add Player</button>
   
+  <h3>Scoreboards</h3>
+
   <div class="scoreboards-row">
     <div id="def_scoreboard" class="scoreboard-container">
-      <h3>Defenders Scoreboard</h3>
+      <h3>Defenders</h3>
       <table id="defScoreboardTable">
         <thead>
           <tr>
@@ -288,7 +290,7 @@
     </div>
 
     <div id="atk_scoreboard" class="scoreboard-container">
-      <h3>Attackers Scoreboard</h3>
+      <h3>Attackers</h3>
       <table id="atkScoreboardTable">
         <thead>
           <tr>
@@ -316,8 +318,8 @@
     <div class="modal-content">
       <h3>Which team won?</h3>
       <div class="team-buttons">
-        <button id="team1Btn" class="team-button team1"></button>
-        <button id="team2Btn" class="team-button team2"></button>
+        <button id="teamRedBtn" class="team-button teamRed"></button>
+        <button id="teamBlueBtn" class="team-button teamBlue"></button>
       </div>
     </div>
   </div>
@@ -352,21 +354,13 @@
       const modalTitle = document.getElementById("modalTitle");
 
       const finalModal = document.getElementById("finalModal");
-      const team1Btn = document.getElementById("team1Btn");
-      const team2Btn = document.getElementById("team2Btn");
+      const teamRedBtn = document.getElementById("teamRedBtn");
+      const teamBlueBtn = document.getElementById("teamBlueBtn");
 
       const addPlayerForm = document.getElementById("addPlayerForm");
       const submitPlayerBtn = document.getElementById("submitPlayerBtn");
 
-      const allPlayers = [
-        "Giocatore 1",
-        "Giocatore 2",
-        "Giocatore 3",
-        "Giocatore 4",
-        "Giocatore 5",
-        "Giocatore 6"
-      ];
-
+      let allPlayers = [];
       let availablePlayers = [];
       let selectedPlayers = [];
       let step = 0;
@@ -419,7 +413,7 @@
         availablePlayers.forEach(player => {
           const item = document.createElement("div");
           item.className = "player-item";
-          item.textContent = player;
+          item.textContent = player.name + ' ' + player.last_name;
           item.onclick = () => selectPlayer(player);
           playerList.appendChild(item);
         });
@@ -440,65 +434,125 @@
       }
 
       function showFinalModal() {
-        const team1 = selectedPlayers.slice(0, 2).join('\n');
-        const team2 = selectedPlayers.slice(2, 4).join('\n');
-        team1Btn.textContent = team1;
-        team2Btn.textContent = team2;
+        const teamRedNames = selectedPlayers.slice(0, 2).map(p => p.name + ' ' + p.last_name).join('\n');
+        const teamBlueNames = selectedPlayers.slice(2, 4).map(p => p.name + ' ' + p.last_name).join('\n');
+        teamRedBtn.textContent = teamRedNames;
+        teamBlueBtn.textContent = teamBlueNames;
         finalModal.style.display = "flex";
       }
 
-      team1Btn.onclick = function () {
-        alert("Team red won!");
+      teamRedBtn.onclick = function () {
+        fetch('/add-game', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            date: new Date().toISOString(),
+            redDefPlayer: selectedPlayers[0],
+            redAtkPlayer: selectedPlayers[1],
+            blueDefPlayer: selectedPlayers[2],
+            blueAtkPlayer: selectedPlayers[3],
+            winnerTeamColor: 'red', 
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Success:', data);
+          alert('Game added successfully!');
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+          alert('Error adding player.');
+        });
+        
         finalModal.style.display = "none";
       };
 
-      team2Btn.onclick = function () {
-        alert("Team blue won!");
+      teamBlueBtn.onclick = function () {
+          fetch('/add-game', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            redDefPlayer: selectedPlayers[0],
+            redAtkPlayer: selectedPlayers[1],
+            blueDefPlayer: selectedPlayers[2],
+            blueAtkPlayer: selectedPlayers[3],
+            winnerTeamColor: 'blue'
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Success:', data);
+          alert('Game added successfully!');
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+          alert('Error adding game.');
+        });
+
         finalModal.style.display = "none";
       };
 
-      function loadScoreboard() {
-        console.log('Loading scoreboard...');
+      function loadPlayers() {
+        console.log('Loading players...');
         fetch('/get-players', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
           }
         })
-        
         .then(response => response.json())
         .then(players => {
-          const defTbody = document.querySelector('#defScoreboardTable tbody');
-          const atkTbody = document.querySelector('#atkScoreboardTable tbody');
-          defTbody.innerHTML = '';
-          atkTbody.innerHTML = '';
-          // Sort players by rank (assuming lower rank is better)
-
           players.forEach(player => {
-            const defRow = document.createElement('tr');
-            defRow.innerHTML = `
-              <td>${player.def_rank}</td>
-              <td>${player.name + ' ' + player.last_name}</td>
-            `;
-            defTbody.appendChild(defRow);
-            const atkRow = document.createElement('tr');
-            atkRow.innerHTML = `
-              <td>${player.atk_rank}</td>
-              <td>${player.name + ' ' + player.last_name}</td>
-            `;
-            atkTbody.appendChild(atkRow);
+            // Player object appended to allPlayers array
+            allPlayers.push(player);
+            availablePlayers.push(player);
           });
+        
+        loadScoreboard();
+        updatePlayerList();
         })
-        .then
         .catch(err => {
-          console.error('Error loading scoreboard:', err);
+          console.error('Error loading players:', err);
         });
-}
 
-// Load scoreboard on page load
-window.onload = function() {
-  console.log('Page loaded, loading scoreboard...');
-  loadScoreboard();
+        console.log('All players loaded:', allPlayers);
+      }
+
+      function loadScoreboard() {
+        console.log('Loading scoreboard...');
+    
+        const defTbody = document.querySelector('#defScoreboardTable tbody');
+        const atkTbody = document.querySelector('#atkScoreboardTable tbody');
+        defTbody.innerHTML = '';
+        atkTbody.innerHTML = '';
+
+        allPlayers.forEach(player => {
+          const defRow = document.createElement('tr');
+          defRow.innerHTML = `
+            <td>${player.def_score['rank']}</td>
+            <td>${player.name + ' ' + player.last_name}</td>
+          `;
+          defTbody.appendChild(defRow);
+          const atkRow = document.createElement('tr');
+          atkRow.innerHTML = `
+            <td>${player.atk_score['rank']}</td>
+            <td>${player.name + ' ' + player.last_name}</td>
+          `;
+          atkTbody.appendChild(atkRow);
+        });
+      }
+      
+
+      // Load scoreboard on page load
+      window.onload = function() {
+        console.log('Page loaded, loading scoreboard...');
+        loadPlayers();
+        // loadScoreboard();
+  
       }
 
       window.onclick = function (event) {
