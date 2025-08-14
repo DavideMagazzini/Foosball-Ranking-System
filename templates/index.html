@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Select Player</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -276,9 +277,11 @@
   <div class="scoreboards-row">
     <div id="def_scoreboard" class="scoreboard-container">
       <h3>Defenders</h3>
+      <img src="{{ url_for('static', filename='img/Defender.png') }}" alt="Defender Icon" style="height: 4em; vertical-align: middle; margin-left: 8px;">
       <table id="defScoreboardTable">
         <thead>
           <tr>
+            <th>#</th>
             <th>Rank</th>
             <th>Player</th>
           </tr>
@@ -291,9 +294,11 @@
 
     <div id="atk_scoreboard" class="scoreboard-container">
       <h3>Attackers</h3>
+      <img src="{{ url_for('static', filename='img/Attackers.png') }}" alt="Attackers Icon" style="height: 4em; vertical-align: middle; margin-left: 8px;">
       <table id="atkScoreboardTable">
         <thead>
           <tr>
+            <th>#</th>
             <th>Rank</th>
             <th>Player</th>
           </tr>
@@ -405,7 +410,7 @@
       function updateModalStyle() {
         modalContent.classList.remove("red-bg", "blue-bg");
         modalContent.classList.add(step < 2 ? "red-bg" : "blue-bg");
-        modalTitle.textContent = `Select ${step % 2 == 0 ? "the goalkeeper" : "attacker"}`;
+        modalTitle.textContent = `Select the ${step % 2 == 0 ? "defender" : "attacker"}`;
       }
 
       function updatePlayerList() {
@@ -524,23 +529,40 @@
 
       function loadScoreboard() {
         console.log('Loading scoreboard...');
-    
         const defTbody = document.querySelector('#defScoreboardTable tbody');
         const atkTbody = document.querySelector('#atkScoreboardTable tbody');
         defTbody.innerHTML = '';
         atkTbody.innerHTML = '';
 
-        allPlayers.forEach(player => {
+        // Sort players by rank for each scoreboard
+        const sortedDef = [...allPlayers].sort((a, b) => a.def_score['rank'] - b.def_score['rank']);
+        const sortedAtk = [...allPlayers].sort((a, b) => a.atk_score['rank'] - b.atk_score['rank']);
+
+        // Trophy icons for top 3
+        const trophyIcons = [
+          '<i class="fa-solid fa-trophy" style="color:gold;" title="1st"></i>',
+          '<i class="fa-solid fa-trophy" style="color:silver;" title="2nd"></i>',
+          '<i class="fa-solid fa-trophy" style="color:#cd7f32;" title="3rd"></i>'
+        ];
+
+        sortedDef.forEach((player, idx) => {
+          const trophy = idx < 3 ? trophyIcons[idx] + ' ' : '';
           const defRow = document.createElement('tr');
           defRow.innerHTML = `
+            <td>${idx+1}</td>
             <td>${player.def_score['rank']}</td>
-            <td>${player.name + ' ' + player.last_name}</td>
+            <td>${trophy}${player.name + ' ' + player.last_name}</td>
           `;
           defTbody.appendChild(defRow);
+        });
+
+        sortedAtk.forEach((player, idx) => {
+          const trophy = idx < 3 ? trophyIcons[idx] + ' ' : '';
           const atkRow = document.createElement('tr');
           atkRow.innerHTML = `
+            <td>${idx+1}</td>
             <td>${player.atk_score['rank']}</td>
-            <td>${player.name + ' ' + player.last_name}</td>
+            <td>${trophy}${player.name + ' ' + player.last_name}</td>
           `;
           atkTbody.appendChild(atkRow);
         });
