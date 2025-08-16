@@ -1,7 +1,9 @@
 from flask import Flask, render_template, jsonify, request
 from database.DatabaseWrapper import DatabaseWrapper
+import true_skill_calculator
 from models.player import Player
 from models.game import Game
+from models.score import Score
 from bson import json_util, ObjectId
 import json
 
@@ -67,27 +69,43 @@ def add_game():
     game = Game(redDefPlayer=Player(_id=ObjectId(data['redDefPlayer']['_id']['$oid']),
                                     name=data['redDefPlayer']['name'], 
                                     last_name=data['redDefPlayer']['last_name'],
-                                    def_score=data['redDefPlayer']['def_score'],
-                                    atk_score=data['redDefPlayer']['atk_score']),
+                                    def_score=Score(**data['redDefPlayer']['def_score']),
+                                    atk_score=Score(**data['redDefPlayer']['atk_score'])),
                 redAtkPlayer=Player(_id=ObjectId(data['redAtkPlayer']['_id']['$oid']),
                                     name=data['redAtkPlayer']['name'], 
                                     last_name=data['redAtkPlayer']['last_name'],
-                                    def_score=data['redAtkPlayer']['def_score'],
-                                    atk_score=data['redAtkPlayer']['atk_score']),
+                                    def_score=Score(**data['redAtkPlayer']['def_score']),
+                                    atk_score=Score(**data['redAtkPlayer']['atk_score'])),
                 blueDefPlayer=Player(_id=ObjectId(data['blueDefPlayer']['_id']['$oid']),
                                     name=data['blueDefPlayer']['name'],
                                     last_name=data['blueDefPlayer']['last_name'],
-                                    def_score=data['blueDefPlayer']['def_score'],
-                                    atk_score=data['blueDefPlayer']['atk_score']),
+                                    def_score=Score(**data['blueDefPlayer']['def_score']),
+                                    atk_score=Score(**data['blueDefPlayer']['atk_score'])),
                 blueAtkPlayer=Player(_id=ObjectId(data['blueAtkPlayer']['_id']['$oid']),
                                     name=data['blueAtkPlayer']['name'], 
                                     last_name=data['blueAtkPlayer']['last_name'],
-                                    def_score=data['blueAtkPlayer']['def_score'],
-                                    atk_score=data['blueAtkPlayer']['atk_score']),
+                                    def_score=Score(**data['blueAtkPlayer']['def_score']),
+                                    atk_score=Score(**data['blueAtkPlayer']['atk_score'])),
                 winnerTeamColor=data['winnerTeamColor'])
     print(game)
+
+    # Add the game to the database
     db_wrap.addGame(game)
+
+    # Calculate the new skill ratings for players after the game
+    new_scores = true_skill_calculator.calculate_skill_after_game(game)
+
+    # Update the players' scores in the database
+    db_wrap.updatePlayerScore(game.redDefPlayer, new_scores[0], isDefScore=True)
+    db_wrap.updatePlayerScore(game.redAtkPlayer, new_scores[1], isDefScore=False)
+    db_wrap.updatePlayerScore(game.blueDefPlayer, new_scores[2], isDefScore=True)
+    db_wrap.updatePlayerScore(game.blueAtkPlayer, new_scores[3], isDefScore=False)
+    print("Game added and players' scores updated successfully.")
+
+    # Return a success message
     return jsonify({"status": "OK", "message": "Game added successfully"})
+
+
 
 
 if __name__ == "__main__":

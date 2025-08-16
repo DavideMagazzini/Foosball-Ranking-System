@@ -548,9 +548,23 @@
         sortedDef.forEach((player, idx) => {
           const trophy = idx < 3 ? trophyIcons[idx] + ' ' : '';
           const defRow = document.createElement('tr');
+          let prevDefRank = player.prev_def_score['rank'];
+          let currDefRank = player.def_score['rank'];
+          let rankDiff = currDefRank - prevDefRank;
+          let diffHtml = '';
+          if (rankDiff < 0) {
+            diffHtml = `<span style="color:red; font-weight:bold; margin-left:6px;">
+                        <i class="fa-solid fa-arrow-down"></i> ${Math.abs(rankDiff).toFixed(0)}
+                        </span>`;
+          } else if (rankDiff > 0) {
+            diffHtml = `<span style="color:green; font-weight:bold; margin-left:6px;">
+                        <i class="fa-solid fa-arrow-up"></i> ${rankDiff.toFixed(0)}
+                        </span>`;
+          }
+
           defRow.innerHTML = `
             <td>${idx+1}</td>
-            <td>${player.def_score['rank']}</td>
+            <td>${currDefRank.toFixed(0)}${diffHtml}</td>
             <td>${trophy}${player.name + ' ' + player.last_name}</td>
           `;
           defTbody.appendChild(defRow);
@@ -559,9 +573,22 @@
         sortedAtk.forEach((player, idx) => {
           const trophy = idx < 3 ? trophyIcons[idx] + ' ' : '';
           const atkRow = document.createElement('tr');
+          let prevAtkRank = player.prev_atk_score['rank'];
+          let currAtkRank = player.atk_score['rank'];
+          let rankDiff = currAtkRank - prevAtkRank;
+          let diffHtml = '';
+          if (rankDiff < 0) {
+            diffHtml = `<span style="color:red; font-weight:bold; margin-left:6px;">
+                        <i class="fa-solid fa-arrow-down"></i> ${Math.abs(rankDiff).toFixed(0)}
+                        </span>`;
+          } else if (rankDiff > 0) {
+            diffHtml = `<span style="color:green; font-weight:bold; margin-left:6px;">
+                        <i class="fa-solid fa-arrow-up"></i> ${rankDiff.toFixed(0)}
+                        </span>`;
+          }
           atkRow.innerHTML = `
             <td>${idx+1}</td>
-            <td>${player.atk_score['rank']}</td>
+            <td>${currAtkRank.toFixed(0)}${diffHtml}</td>
             <td>${trophy}${player.name + ' ' + player.last_name}</td>
           `;
           atkTbody.appendChild(atkRow);

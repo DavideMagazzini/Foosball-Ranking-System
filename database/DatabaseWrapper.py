@@ -28,22 +28,46 @@ class DatabaseWrapper():
         result = self.players.insert_one(new_entry)
         return result
 
-    def updatePlayerScore(self, player: Player, new_score: Score, isDefScore: bool = True):
+    def updatePlayerScore(self, player: Player, new_score: Score, isDefScore: bool = True) -> dict:
+        """
+        Update the player's scores, the new one and the old one, in the database.
+
+        Parameters
+        ----------
+        player : Player
+            The player whose score is to be updated.
+        new_score : Score
+            The new score to be set for the player.
+        isDefScore : bool, optional
+            If True, updates the defensive score; if False, updates the attacking score. Defaults to True.
+
+        Returns
+        -------
+        dict
+            The result of the update operation.
+        """
+
         filter = {
-            '_id': player.id
+            '_id': player._id
         }
         
         if isDefScore:
             new_score = {
                 '$set': {'def_score.mu': new_score.mu,
                          'def_score.sigma': new_score.sigma,
-                         'def_score.rank': new_score.rank}
+                         'def_score.rank': new_score.rank,
+                         'prev_def_score.mu': player.def_score.mu,
+                         'prev_def_score.sigma': player.def_score.sigma,
+                         'prev_def_score.rank': player.def_score.rank}
             }
         else:
             new_score = {
                 '$set': {'atk_score.mu': new_score.mu,
                          'atk_score.sigma': new_score.sigma,
-                         'atk_score.rank': new_score.rank}
+                         'atk_score.rank': new_score.rank,
+                         'prev_atk_score.mu': player.atk_score.mu,
+                         'prev_atk_score.sigma': player.atk_score.sigma,
+                         'prev_atk_score.rank': player.atk_score.rank}
             }
 
         res = self.players.find_one_and_update(filter=filter, update=new_score)
