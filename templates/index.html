@@ -221,6 +221,27 @@
       border-bottom: none;
     }
 
+    #gamesHistoryTable {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 1.05em;
+    }
+
+    #gamesHistoryTable th, #gamesHistoryTable td {
+      padding: 10px 8px;
+      border-bottom: 1px solid #eee;
+    }
+
+    #gamesHistoryTable th {
+      background: #f5f7ff;
+      color: #3441f5;
+      font-weight: 600;
+    }
+
+    #gamesHistoryTable tr:last-child td {
+      border-bottom: none;
+    }
+
     @media (max-width: 600px) {
       h2 {
         font-size: 1.5em;
@@ -264,6 +285,47 @@
         align-items: stretch;
       }
     }
+
+    .tab-container {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto 24px auto;
+    }
+    .tab-buttons {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 16px;
+      gap: 8px;
+    }
+    .tab-btn {
+      background: #f5f7ff;
+      color: #3441f5;
+      border: none;
+      border-radius: 8px 8px 0 0;
+      padding: 12px 32px;
+      font-size: 1.1em;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s, color 0.2s;
+    }
+    .tab-btn.active {
+      background: #3441f5;
+      color: #fff;
+    }
+    .tab-content {
+      width: 100%;
+    }
+
+    .games-history-container {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      padding: 24px;
+      margin-bottom: 24px;
+      width: 100%;
+      max-width: 1100px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -272,41 +334,64 @@
   <button id="addGameBtn">Add Game</button>
   <button id="addPlayerBtn">Add Player</button>
   
-  <h3>Scoreboards</h3>
-
-  <div class="scoreboards-row">
-    <div id="def_scoreboard" class="scoreboard-container">
-      <h3>Defenders</h3>
-      <img src="{{ url_for('static', filename='img/Defender.png') }}" alt="Defender Icon" style="height: 4em; vertical-align: middle; margin-left: 8px;">
-      <table id="defScoreboardTable">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Rank</th>
-            <th>Player</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Player rows will be inserted here by JS -->
-        </tbody>
-      </table>
+  <div class="tab-container">
+    <div class="tab-buttons">
+      <button class="tab-btn active" id="tabScoreboardBtn">Scoreboards</button>
+      <button class="tab-btn" id="tabHistoryBtn">Games History</button>
     </div>
-
-    <div id="atk_scoreboard" class="scoreboard-container">
-      <h3>Attackers</h3>
-      <img src="{{ url_for('static', filename='img/Attackers.png') }}" alt="Attackers Icon" style="height: 4em; vertical-align: middle; margin-left: 8px;">
-      <table id="atkScoreboardTable">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Rank</th>
-            <th>Player</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Player rows will be inserted here by JS -->
-        </tbody>
-      </table>
+    <div class="tab-content" id="scoreboardTab" style="display:block;">
+      <div class="scoreboards-row">
+        <div id="def_scoreboard" class="scoreboard-container">
+          <h3>Defenders</h3>
+          <img src="{{ url_for('static', filename='img/Blue Defender.png') }}" alt="Defender Icon" style="height: 4em; vertical-align: middle; margin-left: 8px;">
+          <table id="defScoreboardTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Rank</th>
+                <th>Player</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Player rows will be inserted here by JS -->
+            </tbody>
+          </table>
+        </div>
+        <div id="atk_scoreboard" class="scoreboard-container">
+          <h3>Attackers</h3>
+          <img src="{{ url_for('static', filename='img/Red Attackers.png') }}" alt="Attackers Icon" style="height: 4em; vertical-align: middle; margin-left: 8px;">
+          <table id="atkScoreboardTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Rank</th>
+                <th>Player</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Player rows will be inserted here by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="tab-content" id="historyTab" style="display:none;">
+      <div class="games-history-container">
+        <h3>Games History</h3>
+        <table id="gamesHistoryTable">
+          <thead>
+            <tr>
+              <th>Date & Time</th>
+              <th>Red Team</th>
+              <th>Blue Team</th>
+              <th>Winner</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Game rows will be inserted here by JS -->
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -410,7 +495,25 @@
       function updateModalStyle() {
         modalContent.classList.remove("red-bg", "blue-bg");
         modalContent.classList.add(step < 2 ? "red-bg" : "blue-bg");
-        modalTitle.textContent = `Select the ${step % 2 == 0 ? "defender" : "attacker"}`;
+
+        let titleText = "";
+        let imgHtml = "";
+
+        if (step === 0) {
+          titleText = "Select the defender";
+          imgHtml = `<img src="{{ url_for('static', filename='img/Red Defender.png') }}" alt="Red Defender" style="height:3em;vertical-align:middle;margin-left:8px;">`;
+        } else if (step === 1) {
+          titleText = "Select the attacker";
+          imgHtml = `<img src="{{ url_for('static', filename='img/Red Attackers.png') }}" alt="Red Attacker" style="height:3em;vertical-align:middle;margin-left:8px;">`;
+        } else if (step === 2) {
+          titleText = "Select the defender";
+          imgHtml = `<img src="{{ url_for('static', filename='img/Blue Defender.png') }}" alt="Blue Defender" style="height:3em;vertical-align:middle;margin-left:8px;">`;
+        } else if (step === 3) {
+          titleText = "Select the attacker";
+          imgHtml = `<img src="{{ url_for('static', filename='img/Blue Attackers.png') }}" alt="Blue Attacker" style="height:3em;vertical-align:middle;margin-left:8px;">`;
+        }
+
+        modalTitle.innerHTML = `${titleText} ${imgHtml}`;
       }
 
       function updatePlayerList() {
@@ -594,12 +697,46 @@
           atkTbody.appendChild(atkRow);
         });
       }
-      
+
+      function loadGamesHistory() {
+        fetch('/get-games', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => response.json())
+        .then(games => {
+          const tbody = document.querySelector('#gamesHistoryTable tbody');
+          tbody.innerHTML = '';
+          games.forEach(game => {
+            // Format date
+            const dateStr = new Date(game.date['$date']).toLocaleString();
+            // Team members
+            const redTeam = `${game.redDefPlayer.name} ${game.redDefPlayer.last_name}<br>${game.redAtkPlayer.name} ${game.redAtkPlayer.last_name}`;
+            const blueTeam = `${game.blueDefPlayer.name} ${game.blueDefPlayer.last_name}<br>${game.blueAtkPlayer.name} ${game.blueAtkPlayer.last_name}`;
+            // Winner
+            const winner = game.winnerTeamColor === 'red' ? 'Red Team' : 'Blue Team';
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${dateStr}</td>
+              <td>${redTeam}</td>
+              <td>${blueTeam}</td>
+              <td style="font-weight:bold; color:${game.winnerTeamColor === 'red' ? '#e74c3c' : '#3498db'}">${winner}</td>
+            `;
+            tbody.appendChild(row);
+          });
+        })
+        .catch(err => {
+          console.error('Error loading games history:', err);
+        });
+      }
 
       // Load scoreboard on page load
       window.onload = function() {
         console.log('Page loaded, loading scoreboard...');
         loadPlayers();
+        loadGamesHistory();
         // loadScoreboard();
   
       }
@@ -610,6 +747,19 @@
           finalModal.style.display = "none";
           addPlayerForm.style.display = "none";
         }
+      };
+
+      document.getElementById('tabScoreboardBtn').onclick = function() {
+        document.getElementById('scoreboardTab').style.display = 'block';
+        document.getElementById('historyTab').style.display = 'none';
+        this.classList.add('active');
+        document.getElementById('tabHistoryBtn').classList.remove('active');
+      };
+      document.getElementById('tabHistoryBtn').onclick = function() {
+        document.getElementById('scoreboardTab').style.display = 'none';
+        document.getElementById('historyTab').style.display = 'block';
+        this.classList.add('active');
+        document.getElementById('tabScoreboardBtn').classList.remove('active');
       };
     </script>
 </body>

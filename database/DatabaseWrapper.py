@@ -105,6 +105,16 @@ class DatabaseWrapper():
             pymongo.cursor.Cursor: A cursor to iterate over all player documents.
         """
         return self.players.find({})
+    
+
+    def getAllGames(self):
+        """
+        Retrieves all game records from the database.
+
+        Returns:
+            pymongo.cursor.Cursor: A cursor to iterate over all game documents.
+        """
+        return self.games.find({})
 
 
 

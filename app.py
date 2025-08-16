@@ -105,6 +105,19 @@ def add_game():
     # Return a success message
     return jsonify({"status": "OK", "message": "Game added successfully"})
 
+@app.route('/get-games', methods=['GET'])
+def get_games():
+    """
+    Endpoint to retrieve all games from the database.
+    Returns a JSON list of games with player names and scores.
+    """
+    print("Fetching all games from the database...")
+    games = db_wrap.getAllGames()
+    if not games:
+        return jsonify({"status": "OK", "games": []})
+    
+    return json.loads(json_util.dumps(games))
+
 
 
 
