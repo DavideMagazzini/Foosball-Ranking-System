@@ -656,11 +656,11 @@
           let rankDiff = currDefRank - prevDefRank;
           let diffHtml = '';
           if (rankDiff < 0) {
-            diffHtml = `<span style="color:red; font-weight:bold; margin-left:6px;">
+            diffHtml = `<span style="color:red; font-weight:bold; margin-left:2px;">
                         <i class="fa-solid fa-arrow-down"></i> ${Math.abs(rankDiff).toFixed(0)}
                         </span>`;
           } else if (rankDiff > 0) {
-            diffHtml = `<span style="color:green; font-weight:bold; margin-left:6px;">
+            diffHtml = `<span style="color:green; font-weight:bold; margin-left:2px;">
                         <i class="fa-solid fa-arrow-up"></i> ${rankDiff.toFixed(0)}
                         </span>`;
           }
