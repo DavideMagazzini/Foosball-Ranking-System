@@ -397,7 +397,6 @@
               <th>Date & Time</th>
               <th>Red Team</th>
               <th>Blue Team</th>
-              <th>Winner</th>
             </tr>
           </thead>
           <tbody>
@@ -725,22 +724,37 @@
         .then(response => response.json())
         .then(games => {
           const tbody = document.querySelector('#gamesHistoryTable tbody');
+          const trophy = '<i class="fa-solid fa-trophy" style="color:gold;vertical-align:middle" title="trophy"></i>';
           tbody.innerHTML = '';
           games.forEach(game => {
             // Format date
             const dateStr = new Date(game.date['$date']).toLocaleString();
-            // Team members
-            const redTeam = `${game.redDefPlayer.name} ${game.redDefPlayer.last_name}<br>${game.redAtkPlayer.name} ${game.redAtkPlayer.last_name}`;
-            const blueTeam = `${game.blueDefPlayer.name} ${game.blueDefPlayer.last_name}<br>${game.blueAtkPlayer.name} ${game.blueAtkPlayer.last_name}`;
-            // Winner
-            const winner = game.winnerTeamColor === 'red' ? 'Red Team' : 'Blue Team';
+            // Def. Atk. icons
+            const redDefIcon = `<img src="{{ url_for('static', filename='img/Red Defender.png') }}" alt="Red Defender" style="height:1.5em;vertical-align:middle;margin-left:3px;">`;
+            const redAtkIcon = `<img src="{{ url_for('static', filename='img/Red Attackers.png') }}" alt="Red Attackers" style="height:1.5em;vertical-align:middle;margin-left:3px;">`;
+            const blueDefIcon = `<img src="{{ url_for('static', filename='img/Blue Defender.png') }}" alt="Blue Defender" style="height:1.5em;vertical-align:middle;margin-left:3px;">`;
+            const blueAtkIcon = `<img src="{{ url_for('static', filename='img/Blue Attackers.png') }}" alt="Blue Attackers" style="height:1.5em;vertical-align:middle;margin-left:3px;">`;
+
+           
             const row = document.createElement('tr');
-            row.innerHTML = `
-              <td>${dateStr}</td>
-              <td>${redTeam}</td>
-              <td>${blueTeam}</td>
-              <td style="font-weight:bold; color:${game.winnerTeamColor === 'red' ? '#e74c3c' : '#3498db'}">${winner}</td>
-            `;
+            if (game.winnerTeamColor === 'red') {
+               // Team members
+              const redTeam = `${trophy} ${game.redDefPlayer.name} ${game.redDefPlayer.last_name} ${redDefIcon}<br>${trophy} ${game.redAtkPlayer.name} ${game.redAtkPlayer.last_name} ${redAtkIcon}`;
+              const blueTeam = `${game.blueDefPlayer.name} ${game.blueDefPlayer.last_name} ${blueDefIcon}<br>${game.blueAtkPlayer.name} ${game.blueAtkPlayer.last_name} ${blueAtkIcon}`;
+              row.innerHTML = `
+                <td>${dateStr}</td>
+                <td>${redTeam}</td>
+                <td>${blueTeam}</td>
+              `;
+            } else {
+              const redTeam = `${game.redDefPlayer.name} ${game.redDefPlayer.last_name} ${redDefIcon}<br>${game.redAtkPlayer.name} ${game.redAtkPlayer.last_name} ${redAtkIcon}`;
+              const blueTeam = `${trophy} ${game.blueDefPlayer.name} ${game.blueDefPlayer.last_name} ${blueDefIcon}<br>${trophy} ${game.blueAtkPlayer.name} ${game.blueAtkPlayer.last_name} ${blueAtkIcon}`;
+              row.innerHTML = `
+                <td>${dateStr}</td>
+                <td>${redTeam}</td>
+                <td>${blueTeam}</td>
+              `;
+            }
             tbody.appendChild(row);
           });
         })
