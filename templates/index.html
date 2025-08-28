@@ -635,7 +635,7 @@
             allPlayers.push(player);
             availablePlayers.push(player);
           });
-        
+        sortAllPlayers();
         loadScoreboard();
         updatePlayerList();
         })
@@ -644,6 +644,11 @@
         });
 
         console.log('All players loaded:', allPlayers);
+      }
+
+      function sortAllPlayers() {
+        // Sort allPlayers by the name of the player
+        allPlayers.sort((a, b) => a.name.localeCompare(b.name));
       }
 
       function loadScoreboard() {
