@@ -27,7 +27,7 @@ def add_player():
 
     db_wrap.addPlayer(Player(name=name, last_name=last_name))
     
-    messaggio_di_successo = {"status": "OK", "message": "Player addedd successfully"}
+    messaggio_di_successo = {"status": "OK", "message": "Player added successfully"}
     return jsonify(messaggio_di_successo)
 
 @app.route('/get-players', methods=['GET'])
@@ -117,6 +117,19 @@ def get_games():
         return jsonify({"status": "OK", "games": []})
     
     return json.loads(json_util.dumps(games))
+
+# # @app.route('/get-player-score/<player_id>', methods=['GET'])
+# @app.route('?player_id=<player_id>', methods=['GET'])
+# def get_player_score(player_id):
+#     """
+#     Endpoint to retrieve all games from the database.
+#     Returns a JSON list of games with player names and scores.
+#     """
+#     print("Prova delle cose" + player_id)
+ 
+    
+#     # Return a success message
+#     return jsonify({"status": "OK", "message": "Game added successfully"})
 
 
 

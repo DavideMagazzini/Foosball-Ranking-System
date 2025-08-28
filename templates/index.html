@@ -457,6 +457,7 @@
       const playerList = document.getElementById("playerList");
       const addGameBtn = document.getElementById("addGameBtn");
       const addPlayerBtn = document.getElementById("addPlayerBtn");
+      const playerForm = document.getElementById("playerForm");
       const modalTitle = document.getElementById("modalTitle");
 
       const finalModal = document.getElementById("finalModal");
@@ -500,11 +501,10 @@
           console.log('Success:', data);
           alert('Player added successfully!');
           addPlayerForm.style.display = "none"; // Close modal on success
-          playerForm.reset(); // Clear the form fields
         })
         .catch((error) => {
           console.error('Error:', error);
-          alert('Error adding player.');
+          alert('Error adding player.' + error);
         });
       }
 
@@ -587,7 +587,7 @@
         })
         .catch((error) => {
           console.error('Error:', error);
-          alert('Error adding player.');
+          alert('Error adding game.');
         });
         
         finalModal.style.display = "none";
@@ -642,8 +642,6 @@
         .catch(err => {
           console.error('Error loading players:', err);
         });
-
-        console.log('All players loaded:', allPlayers);
       }
 
       function sortAllPlayers() {
