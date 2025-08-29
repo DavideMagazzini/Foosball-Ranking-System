@@ -563,7 +563,27 @@
         teamRedBtn.textContent = teamRedNames;
         teamBlueBtn.textContent = teamBlueNames;
         finalModal.style.display = "flex";
+        win_rate = getGameWinRate(selectedPlayers.slice(0, 2), selectedPlayers.slice(2, 4));
       }
+
+      function getGameWinRate(team1, team2) {
+        fetch('/game-win-rate', 
+          { method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({team1: {'defender': team1[0],
+                                          'attacker': team1[1],
+                                          'color': 'red'},
+                                  team2: {'defender': team2[0],
+                                          'attacker': team2[1],
+                                          'color': 'blue'}})
+          })
+          .then(response => response.json())
+          .then(data => {
+            teamRedBtn.textContent = data;
+          })
+        }
+        
+      
 
       teamRedBtn.onclick = function () {
         fetch('/add-game', {

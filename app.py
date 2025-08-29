@@ -4,6 +4,7 @@ import true_skill_calculator
 from models.player import Player
 from models.game import Game
 from models.score import Score
+from models.team import Team
 from bson import json_util, ObjectId
 import json
 
@@ -132,7 +133,16 @@ def get_games():
 #     return jsonify({"status": "OK", "message": "Game added successfully"})
 
 
+@app.route('/game-win-rate', methods=['POST'])
+def game_win_rate():
+    """
+    """
+    data = request.get_json()
+    team1 = Team(**data['team1'])
+    team2 = Team(**data['team2'])
 
+    win_rate = true_skill_calculator.calculate_win_rate(team1, team2)
+    # return jsonify({'win_rate': win_rate})
 
 if __name__ == "__main__":
     app.run(debug=True)
