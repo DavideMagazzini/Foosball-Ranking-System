@@ -2,3 +2,4 @@ flask
 gunicorn
 pymongo
 trueskill
+scipy
