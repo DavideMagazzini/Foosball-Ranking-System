@@ -129,8 +129,22 @@
       display: flex;
       gap: 10px;
       margin-top: 20px;
-      justify-content: center;
+      justify-content: space-around;
+      align-items: stretch;
       flex-wrap: wrap;
+    }
+
+    .team-section {
+      flex: 1;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .win-rate {
+      margin-top: 6px;
+      font-size: 0.9em;
+      color: #555;
     }
 
     .team-button {
@@ -420,8 +434,14 @@
     <div class="modal-content">
       <h3>Which team won?</h3>
       <div class="team-buttons">
-        <button id="teamRedBtn" class="team-button teamRed"></button>
-        <button id="teamBlueBtn" class="team-button teamBlue"></button>
+        <div class="team-section">
+          <button id="teamRedBtn" class="team-button teamRed"></button>
+          <p id="redWinRate" class="win-rate"></p>
+        </div>
+        <div class="team-section">
+          <button id="teamBlueBtn" class="team-button teamBlue"></button>
+          <p id="blueWinRate" class="win-rate"></p>
+        </div>
       </div>
     </div>
   </div>
@@ -563,10 +583,10 @@
         teamRedBtn.textContent = teamRedNames;
         teamBlueBtn.textContent = teamBlueNames;
         finalModal.style.display = "flex";
-        win_rate = getGameWinRate(selectedPlayers.slice(0, 2), selectedPlayers.slice(2, 4));
+        getGameWinRateAndShow(selectedPlayers.slice(0, 2), selectedPlayers.slice(2, 4));
       }
 
-      function getGameWinRate(team1, team2) {
+      function getGameWinRateAndShow(team1, team2) {
         fetch('/game-win-rate', 
           { method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -579,7 +599,8 @@
           })
           .then(response => response.json())
           .then(data => {
-            teamRedBtn.textContent = data;
+            document.getElementById('redWinRate').textContent = 'Win Rate: ' + (data.win_rate*100).toFixed(0) + '%';
+            document.getElementById('blueWinRate').textContent = 'Win Rate: ' + (100 - data.win_rate*100).toFixed(0) + '%';
           })
         }
         

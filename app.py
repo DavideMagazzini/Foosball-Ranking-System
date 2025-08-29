@@ -142,7 +142,7 @@ def game_win_rate():
     team2 = Team(**data['team2'])
 
     win_rate = true_skill_calculator.calculate_win_rate(team1, team2)
-    # return jsonify({'win_rate': win_rate})
+    return jsonify({'win_rate': win_rate})
 
 if __name__ == "__main__":
     app.run(debug=True)
