@@ -1,6 +1,9 @@
 # Foosball-Ranking-System
 Tracking the personal score of every player at foosball (table soccer).
 
+The score is computed using the TrueSkill library, developed by Microsoft Research.
+[TrueSkill documentation](https://trueskill.org/)
+
 The app has the following architecture:
 ![FRS Architecture](./docs/images/FRS_Architecture.png)
 
