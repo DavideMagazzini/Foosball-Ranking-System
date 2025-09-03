@@ -4,9 +4,7 @@ from dataclasses import dataclass, field
 @dataclass
 class Player:
     name: str
-    last_name: str
-    # def_score: Score = field(default_factory=Score)
-    # atk_score: Score = field(default_factory=Score) 
+    last_name: str 
     def_score: Score | dict = field(default_factory=Score) 
     atk_score: Score | dict = field(default_factory=Score) 
     prev_def_score: Score = field(default_factory=Score)

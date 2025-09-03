@@ -14,6 +14,10 @@ db_wrap = DatabaseWrapper()
 
 @app.route("/")
 def home():
+    """
+    Render the home page.
+    Returns the rendered HTML template.
+    """
     return render_template("index.html")
 
 @app.route('/add-player', methods=['POST'])
@@ -63,8 +67,8 @@ def get_players_ranks():
 @app.route('/add-game', methods=['POST'])
 def add_game():
     """
-    Add the game to the database
-
+    Add the game to the database, and update player scores.
+    Returns a success message.
     """
     data = request.get_json()
     game = Game(redDefPlayer=Player(_id=ObjectId(data['redDefPlayer']['_id']['$oid']),
@@ -136,6 +140,8 @@ def get_games():
 @app.route('/game-win-rate', methods=['POST'])
 def game_win_rate():
     """
+    Calculate the win rate of team1 against team2.
+    Returns the win rate as a float [0, 1].
     """
     data = request.get_json()
     team1 = Team(**data['team1'])
