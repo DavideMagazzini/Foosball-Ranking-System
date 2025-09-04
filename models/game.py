@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from models.player import Player
 from dataclasses import dataclass, field
 
@@ -9,8 +9,8 @@ class Game:
     blueDefPlayer: Player | dict
     blueAtkPlayer: Player | dict
     winnerTeamColor: str
-    date: datetime = field(default_factory=datetime.now)
-
+    date: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    
     def __post_init__(self):
         if self.winnerTeamColor not in ['red', 'blue']: raise ValueError('winnerTeamColor has to be between red and blue')
         if isinstance(self.redDefPlayer, dict):
@@ -21,3 +21,5 @@ class Game:
             self.blueDefPlayer = Player(**self.blueDefPlayer)
         if isinstance(self.blueAtkPlayer, dict):
             self.blueAtkPlayer = Player(**self.blueAtkPlayer)
+
+
