@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Select Player</title>
+  <title>Foosball Rankings</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <style>
     body {
@@ -466,6 +466,23 @@
     </div>
   </div>
 
+
+  <!-- Player profile form -->
+  <div id="playerProfileForm" class="modal">
+    <div class="modal-content">
+      <h3 style="margin-bottom: 18px;">Player profile test</h3>
+      <div id="playerForm" style="width:100%; display:flex; flex-direction:column; align-items:center; gap:16px;">
+        <label for="playerMu" style="font-size:1.1em; color:#333; margin-bottom:4px;">Mu:</label>
+        <label for="playerSigma" style="font-size:1.1em; color:#333; margin-bottom:4px;">Sigma:</label>
+        <label for="playerRank" style="font-size:1.1em; color:#333; margin-bottom:4px;">Rank:</label>
+        <button type="submit" id="submitPlayerBtn"
+          style="background-color:#3441f5; color:white; border:none; border-radius:8px; padding:12px 24px; font-size:1em; cursor:pointer; transition:background 0.3s;">
+          Add
+        </button>
+      </div>
+    </div>
+  </div>
+
   <footer class="author-footer">
   Made by Davide Magazzini in Poggibonsi
   </footer>
@@ -487,6 +504,10 @@
       const addPlayerForm = document.getElementById("addPlayerForm");
       const submitPlayerBtn = document.getElementById("submitPlayerBtn");
 
+      const playerProfileForm = document.getElementById("playerProfileForm");
+
+      const def_scoreboard = document.getElementById("def_scoreboard");
+
       let allPlayers = [];
       let availablePlayers = [];
       let selectedPlayers = [];
@@ -502,7 +523,7 @@
       };
 
       addPlayerBtn.onclick = function () {
-        document.getElementById('addPlayerForm').style.display = 'flex';
+        addPlayerForm.style.display = 'flex';
       };
 
       submitPlayerBtn.onclick = function () {
@@ -661,6 +682,11 @@
         finalModal.style.display = "none";
       };
 
+
+      def_scoreboard.onclick = function () {
+        playerProfileForm.style.display = "flex";
+      }
+
       function loadPlayers() {
         console.log('Loading players...');
         fetch('/get-players', {
@@ -817,10 +843,11 @@
       }
 
       window.onclick = function (event) {
-        if (event.target === modal || event.target === finalModal || event.target === addPlayerForm) {
+        if (event.target === modal || event.target === finalModal || event.target === addPlayerForm || event.target === playerProfileForm) {
           modal.style.display = "none";
           finalModal.style.display = "none";
           addPlayerForm.style.display = "none";
+          playerProfileForm.style.display = "none";
         }
       };
 
