@@ -521,6 +521,7 @@
           console.log('Success:', data);
           alert('Player added successfully!');
           addPlayerForm.style.display = "none"; // Close modal on success
+          location.reload(); // Reload the page to update the player list
         })
         .catch((error) => {
           console.error('Error:', error);
@@ -631,6 +632,7 @@
         });
         
         finalModal.style.display = "none";
+        location.reload(); // Reload the page to update the scoreboard and history
       };
 
       teamBlueBtn.onclick = function () {
