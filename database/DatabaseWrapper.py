@@ -153,6 +153,55 @@ class DatabaseWrapper():
         return self.games.find({})
 
 
+    def removeGameById(self, game_id: str | ObjectId):
+        """
+        Removes a game from the database by its unique identifier.
+
+        Parameters
+        ----------
+        game_id : str | ObjectId
+            The unique identifier of the game to remove.
+
+        Returns
+        -------
+        dict
+            The result of the delete operation.
+        """
+
+        return self.games.delete_one({'_id': game_id})
+    
+
+    def removeGameAndUpdateScores(self, game: Game):
+        """
+        Removes a game from the database and updates the scores of the players involved in the game.
+
+        Parameters
+        ----------
+        game : Game
+            The game object to remove and whose players' scores are to be updated.
+
+        Returns
+        -------
+        dict
+            The result of the delete operation.
+        """
+        #TODO think about what happens to prev def score and if its ok
+
+        # Update red player's defensive score
+        self.updatePlayerScore(game.redDefPlayer, game.redDefPlayer.prev_def_score, isDefScore=True)
+        
+        # Update red player's attacking score
+        self.updatePlayerScore(game.redAtkPlayer, game.redAtkPlayer.prev_atk_score, isDefScore=False)
+        
+        # Update blue player's defensive score
+        self.updatePlayerScore(game.blueDefPlayer, game.blueDefPlayer.prev_def_score, isDefScore=True)
+        
+        # Update blue player's attacking score
+        self.updatePlayerScore(game.blueAtkPlayer, game.blueAtkPlayer.prev_atk_score, isDefScore=False)
+
+        # Remove the game from the database
+        return self.removeGameById(game._id)
+
 
 if __name__ == '__main__':
     
