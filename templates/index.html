@@ -542,6 +542,7 @@
           console.log('Success:', data);
           alert('Player added successfully!');
           addPlayerForm.style.display = "none"; // Close modal on success
+          location.reload(); // Reload the page to update the player list
         })
         .catch((error) => {
           console.error('Error:', error);
@@ -634,7 +635,6 @@
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            date: new Date().toISOString(),
             redDefPlayer: selectedPlayers[0],
             redAtkPlayer: selectedPlayers[1],
             blueDefPlayer: selectedPlayers[2],
@@ -653,6 +653,7 @@
         });
         
         finalModal.style.display = "none";
+        location.reload(); // Reload the page to update the scoreboard and history
       };
 
       teamBlueBtn.onclick = function () {
@@ -796,7 +797,10 @@
           const tbody = document.querySelector('#gamesHistoryTable tbody');
           const trophy = '<i class="fa-solid fa-trophy" style="color:gold;vertical-align:middle" title="trophy"></i>';
           tbody.innerHTML = '';
-          games.forEach(game => {
+          for (i = games.length-1; i >= 0; i--) {
+            game = games[i];
+          
+          // games.forEach(game => {
             // Format date
             const dateStr = new Date(game.date['$date']).toLocaleString();
             // Def. Atk. icons
@@ -826,7 +830,7 @@
               `;
             }
             tbody.appendChild(row);
-          });
+          };
         })
         .catch(err => {
           console.error('Error loading games history:', err);

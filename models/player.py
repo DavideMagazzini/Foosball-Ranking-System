@@ -1,5 +1,6 @@
 from models.score import Score
 from dataclasses import dataclass, field
+from bson import ObjectId
 
 @dataclass
 class Player:
@@ -9,7 +10,7 @@ class Player:
     atk_score: Score | dict = field(default_factory=Score) 
     prev_def_score: Score = field(default_factory=Score)
     prev_atk_score: Score = field(default_factory=Score)
-    _id: str = None  # Optional, set when loaded from DB
+    _id: ObjectId | str = None  # Optional, set when loaded from DB
 
     def __post_init__(self):
         if not self.name or not self.last_name:
@@ -19,4 +20,7 @@ class Player:
             self.def_score = Score(**self.def_score)
         if isinstance(self.atk_score, dict):
             self.atk_score = Score(**self.atk_score)
-
+        if isinstance(self.prev_def_score, dict):
+            self.prev_def_score = Score(**self.prev_def_score)
+        if isinstance(self.prev_atk_score, dict):
+            self.prev_atk_score = Score(**self.prev_atk_score)

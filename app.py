@@ -70,29 +70,8 @@ def add_game():
     Add the game to the database, and update player scores.
     Returns a success message.
     """
-    data = request.get_json()
-    game = Game(redDefPlayer=Player(_id=ObjectId(data['redDefPlayer']['_id']['$oid']),
-                                    name=data['redDefPlayer']['name'], 
-                                    last_name=data['redDefPlayer']['last_name'],
-                                    def_score=Score(**data['redDefPlayer']['def_score']),
-                                    atk_score=Score(**data['redDefPlayer']['atk_score'])),
-                redAtkPlayer=Player(_id=ObjectId(data['redAtkPlayer']['_id']['$oid']),
-                                    name=data['redAtkPlayer']['name'], 
-                                    last_name=data['redAtkPlayer']['last_name'],
-                                    def_score=Score(**data['redAtkPlayer']['def_score']),
-                                    atk_score=Score(**data['redAtkPlayer']['atk_score'])),
-                blueDefPlayer=Player(_id=ObjectId(data['blueDefPlayer']['_id']['$oid']),
-                                    name=data['blueDefPlayer']['name'],
-                                    last_name=data['blueDefPlayer']['last_name'],
-                                    def_score=Score(**data['blueDefPlayer']['def_score']),
-                                    atk_score=Score(**data['blueDefPlayer']['atk_score'])),
-                blueAtkPlayer=Player(_id=ObjectId(data['blueAtkPlayer']['_id']['$oid']),
-                                    name=data['blueAtkPlayer']['name'], 
-                                    last_name=data['blueAtkPlayer']['last_name'],
-                                    def_score=Score(**data['blueAtkPlayer']['def_score']),
-                                    atk_score=Score(**data['blueAtkPlayer']['atk_score'])),
-                winnerTeamColor=data['winnerTeamColor'])
-    print(game)
+    data = json_util.loads(request.data)
+    game = Game(**data)
 
     # Add the game to the database
     db_wrap.addGame(game)
@@ -151,4 +130,10 @@ def game_win_rate():
     return jsonify({'win_rate': win_rate})
 
 if __name__ == "__main__":
+    player1 = Player(name="Player1", last_name="One")
+    player2 = Player(name="Player2", last_name="Two")
+    player3 = Player(name="Player3", last_name="Three")
+    player4 = Player(name="Player4", last_name="Four")
+    game = Game(redDefPlayer=player1, redAtkPlayer=player2, blueDefPlayer=player3, blueAtkPlayer=player4, winnerTeamColor="red")
+
     app.run(debug=True)
