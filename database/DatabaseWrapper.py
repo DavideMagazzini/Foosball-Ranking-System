@@ -131,6 +131,8 @@ class DatabaseWrapper():
         Returns:
             Player: The player class corresponding to the given ID, or None if not found.
         """
+        if isinstance(player_id, str):
+            player_id = ObjectId(player_id)
         return self.players.find_one({'_id': player_id})
     
     def getAllPlayers(self):

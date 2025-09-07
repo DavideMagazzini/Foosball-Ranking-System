@@ -129,6 +129,20 @@ def game_win_rate():
     win_rate = true_skill_calculator.calculate_win_rate(team1, team2)
     return jsonify({'win_rate': win_rate})
 
+
+@app.route('/player-profile/<player_id>', methods=['GET'])
+def player_profile(player_id):
+    """
+    Endpoint to retrieve a player's profile by their ID.
+    Returns a JSON object with the player's details and scores.
+    """
+    player = db_wrap.getPlayerById(player_id)
+    if not player:
+        return jsonify({"status": "Error", "message": "Player not found"})
+    
+    return json.loads(json_util.dumps(player))
+
+
 if __name__ == "__main__":
     player1 = Player(name="Player1", last_name="One")
     player2 = Player(name="Player2", last_name="Two")

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            .modal {
+                display: none;
+                position: fixed;
+                z-index: 1;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.6);
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                box-sizing: border-box;
+            }
+
+            .modal-content {
+                background-color: rgb(255, 245, 245);
+                border-radius: 12px;
+                padding: 20px;
+                width: 100%;
+                max-width: 400px;
+                max-height: 90vh;
+                overflow: auto;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                transition: background-color 0.3s ease;
+            }
+        </style>
+    </head>
+    <body>
+        Provaasdasdasd
+
+        <div id="playerProfileModal" class="modal">
+            <div class="modal-content">
+                <h3 style="margin-bottom: 18px;">Player Profile</h3>
+                <div id="playerForm" style="width:100%; display:flex; flex-direction:row; align-items:center; gap:16px;">
+                    <div style="width: 100%;text-align: center;">
+                        <p style="font-weight: bold">Defense</p>
+                        <div id="playerMuScores">
+                            <label for="playerMu" style="font-size:1.1em; color:#333; margin-bottom:4px;">Mu:</label>
+                            <label id="playerMuDefValue" style="font-size:1.1em; color:#333; margin-bottom:4px;">12</label>
+                        </div>
+                        <div id="playerSigmaDefScores">
+                            <label style="font-size:1.1em; color:#333; margin-bottom:4px;">Sigma:</label>
+                            <label id="playerSigmaDefValue" style="font-size:1.1em; color:#333; margin-bottom:4px;">12</label>
+                        </div>
+                        <div id="playerSigmaDefScores">
+                            <label style="font-size:1.1em; color:#333; margin-bottom:4px;">Rank:</label>
+                            <label id="playerRankDefValue" style="font-size:1.1em; color:#333; margin-bottom:4px;">12</label>
+                        </div>
+                    </div>
+                    <div style="width:100%; text-align: center;">
+                        <p style="font-weight: bold">Attack</p>
+                        <div id="playerMuScores">
+                            <label for="playerMu" style="font-size:1.1em; color:#333; margin-bottom:4px;">Mu:</label>
+                            <label id="playerMuDefValue" style="font-size:1.1em; color:#333; margin-bottom:4px;">12</label>
+                        </div>
+                        <div id="playerSigmaDefScores">
+                            <label style="font-size:1.1em; color:#333; margin-bottom:4px;">Sigma:</label>
+                            <label id="playerSigmaDefValue" style="font-size:1.1em; color:#333; margin-bottom:4px;">12</label>
+                        </div>
+                        <div id="playerSigmaDefScores">
+                            <label style="font-size:1.1em; color:#333; margin-bottom:4px;">Rank:</label>
+                            <label id="playerRankDefValue" style="font-size:1.1em; color:#333; margin-bottom:4px;">12</label>
+                        </div>
+                    </div> 
+                </div>
+                <h3 style="margin-bottom: 18px;">Achievements</h3>
+                Coso
+            </div>
+        </div>
+
+
+
+    </body>
+    
+</html>
+
+<script>    
+document.getElementById('playerProfileModal').style.display = 'flex';
+
+
+</script>

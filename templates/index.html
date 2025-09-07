@@ -467,21 +467,47 @@
   </div>
 
 
-  <!-- Player profile form -->
-  <div id="playerProfileForm" class="modal">
-    <div class="modal-content">
-      <h3 style="margin-bottom: 18px;">Player profile test</h3>
-      <div id="playerForm" style="width:100%; display:flex; flex-direction:column; align-items:center; gap:16px;">
-        <label for="playerMu" style="font-size:1.1em; color:#333; margin-bottom:4px;">Mu:</label>
-        <label for="playerSigma" style="font-size:1.1em; color:#333; margin-bottom:4px;">Sigma:</label>
-        <label for="playerRank" style="font-size:1.1em; color:#333; margin-bottom:4px;">Rank:</label>
-        <button type="submit" id="submitPlayerBtn"
-          style="background-color:#3441f5; color:white; border:none; border-radius:8px; padding:12px 24px; font-size:1em; cursor:pointer; transition:background 0.3s;">
-          Add
-        </button>
+<!-- Player profile modal -->
+  <div id="playerProfileModal" class="modal">
+      <div class="modal-content">
+          <h3 style="margin-bottom: 18px;">Player Profile</h3>
+          <div id="playerForm" style="width:100%; display:flex; flex-direction:row; align-items:center; gap:16px;">
+              <div style="width: 100%;text-align: center;">
+                  <p style="font-weight: bold">Defense</p>
+                  <div id="playerMuScores">
+                      <label for="playerMu" style="font-size:1.1em; color:#333; margin-bottom:4px;">Mu:</label>
+                      <label id="playerMuDefValue" style="font-size:1.1em; color:#333; margin-bottom:4px;">12</label>
+                  </div>
+                  <div id="playerSigmaDefScores">
+                      <label style="font-size:1.1em; color:#333; margin-bottom:4px;">Sigma:</label>
+                      <label id="playerSigmaDefValue" style="font-size:1.1em; color:#333; margin-bottom:4px;">12</label>
+                  </div>
+                  <div id="playerSigmaDefScores">
+                      <label style="font-size:1.1em; color:#333; margin-bottom:4px;">Rank:</label>
+                      <label id="playerRankDefValue" style="font-size:1.1em; color:#333; margin-bottom:4px;">12</label>
+                  </div>
+              </div>
+              <div style="width:100%; text-align: center;">
+                  <p style="font-weight: bold">Attack</p>
+                  <div id="playerMuScores">
+                      <label for="playerMu" style="font-size:1.1em; color:#333; margin-bottom:4px;">Mu:</label>
+                      <label id="playerMuAtkValue" style="font-size:1.1em; color:#333; margin-bottom:4px;">12</label>
+                  </div>
+                  <div id="playerSigmaDefScores">
+                      <label style="font-size:1.1em; color:#333; margin-bottom:4px;">Sigma:</label>
+                      <label id="playerSigmaAtkValue" style="font-size:1.1em; color:#333; margin-bottom:4px;">12</label>
+                  </div>
+                  <div id="playerSigmaDefScores">
+                      <label style="font-size:1.1em; color:#333; margin-bottom:4px;">Rank:</label>
+                      <label id="playerRankAtkValue" style="font-size:1.1em; color:#333; margin-bottom:4px;">12</label>
+                  </div>
+              </div> 
+          </div>
+          <h3 style="margin-bottom: 18px;">Achievements</h3>
+          Work in progress
       </div>
-    </div>
   </div>
+
 
   <footer class="author-footer">
   Made by Davide Magazzini in Poggibonsi
@@ -504,7 +530,7 @@
       const addPlayerForm = document.getElementById("addPlayerForm");
       const submitPlayerBtn = document.getElementById("submitPlayerBtn");
 
-      const playerProfileForm = document.getElementById("playerProfileForm");
+      const playerProfileModal = document.getElementById("playerProfileModal");
 
       const def_scoreboard = document.getElementById("def_scoreboard");
 
@@ -684,9 +710,23 @@
       };
 
 
-      def_scoreboard.onclick = function () {
-        playerProfileForm.style.display = "flex";
-      }
+      def_scoreboard.onclick = function (e) {
+        console.log(e)
+        let row = e.target.closest('tr');
+        if (row && row.hasAttribute('player-id')) {
+          let playerId = row.getAttribute('player-id');
+          showPlayerProfile(playerId);
+        }
+      };
+
+      atk_scoreboard.onclick = function (e) {
+        console.log(e)
+        let row = e.target.closest('tr');
+        if (row && row.hasAttribute('player-id')) {
+          let playerId = row.getAttribute('player-id');
+          showPlayerProfile(playerId);
+        }
+      };
 
       function loadPlayers() {
         console.log('Loading players...');
@@ -738,6 +778,7 @@
         sortedDef.forEach((player, idx) => {
           const trophy = idx < 3 ? trophyIcons[idx] + ' ' : '';
           const defRow = document.createElement('tr');
+          defRow.setAttribute('player-id', player._id['$oid']);
           let prevDefRank = player.prev_def_score['rank'];
           let currDefRank = player.def_score['rank'];
           let rankDiff = currDefRank - prevDefRank;
@@ -763,6 +804,7 @@
         sortedAtk.forEach((player, idx) => {
           const trophy = idx < 3 ? trophyIcons[idx] + ' ' : '';
           const atkRow = document.createElement('tr');
+          atkRow.setAttribute('player-id', player._id['$oid']);
           let prevAtkRank = player.prev_atk_score['rank'];
           let currAtkRank = player.atk_score['rank'];
           let rankDiff = currAtkRank - prevAtkRank;
@@ -837,6 +879,30 @@
         });
       }
 
+      // Shows player profile modal
+      function showPlayerProfile(playerId) {
+        console.log('Showing profile of:' +  playerId);
+        playerProfileModal.style.display = "flex";
+        fetch('player-profile/' + playerId, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => response.json())
+        .then(player => {
+          // Populate modal with player data
+          playerProfileModal.querySelector('h3').textContent = player.name + ' ' + player.last_name;
+          document.getElementById('playerMuDefValue').innerHTML = player.def_score.mu.toFixed(0);
+          document.getElementById('playerSigmaDefValue').innerHTML = player.def_score.sigma.toFixed(0);
+          document.getElementById('playerRankDefValue').innerHTML = player.def_score.rank.toFixed(0);
+          document.getElementById('playerMuAtkValue').innerHTML = player.atk_score.mu.toFixed(0);
+          document.getElementById('playerSigmaAtkValue').innerHTML = player.atk_score.sigma.toFixed(0);
+          document.getElementById('playerRankAtkValue').innerHTML = player.atk_score.rank.toFixed(0);
+          })
+
+      };
+
       // Load scoreboard on page load
       window.onload = function() {
         console.log('Page loaded, loading scoreboard...');
@@ -847,11 +913,11 @@
       }
 
       window.onclick = function (event) {
-        if (event.target === modal || event.target === finalModal || event.target === addPlayerForm || event.target === playerProfileForm) {
+        if (event.target === modal || event.target === finalModal || event.target === addPlayerForm || event.target === playerProfileModal) {
           modal.style.display = "none";
           finalModal.style.display = "none";
           addPlayerForm.style.display = "none";
-          playerProfileForm.style.display = "none";
+          playerProfileModal.style.display = "none";
         }
       };
 
