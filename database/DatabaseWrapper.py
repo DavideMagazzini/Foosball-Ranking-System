@@ -203,6 +203,42 @@ class DatabaseWrapper():
 
         # Remove the game from the database
         return self.removeGameById(game._id)
+    
+
+    def getPlayerScoreHistory(self, playerId: str | ObjectId) -> list[list[Score]]:
+        """
+        Retrieves the score history of a player by their unique identifier.
+        
+        Parameters
+        ----------
+        playerId : str | ObjectId
+            The unique identifier of the player whose score history is to be retrieved.
+            
+        Returns
+        -------
+        two lists of Score
+            The first list contains the defensive score history, 
+            and the second list contains the attacking score history.
+        """
+
+        if isinstance(playerId, str):
+            playerId = ObjectId(playerId)
+
+        # Find all games where the player participated
+        games = self.games.find({
+            '$or': [
+                {'redDefPlayer._id': playerId},
+                {'redAtkPlayer._id': playerId},
+                {'blueDefPlayer._id': playerId},
+                {'blueAtkPlayer._id': playerId}
+            ]
+        }).sort('date', 1)
+
+        # score_history = []
+        # for game in games:
+        #     score_history.append(Score(
+        #         mu=game['redDefPlayer']['def_score']['mu'] if game['redDefPlayer']['_id'] == playerId else))
+
 
 
 if __name__ == '__main__':

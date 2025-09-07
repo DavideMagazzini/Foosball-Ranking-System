@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Simple XY Plot</title>
+</head>
+<body>
+<canvas id="plot" width="600" height="300" style="border:1px solid #ccc"></canvas>
+
+<script>
+  // Example data (x,y) pairs
+  const data = [
+    [0, 10],
+    [1, 20],
+    [2, 15],
+    [3, 30],
+    [4, 25]
+  ];
+
+  const canvas = document.getElementById("plot");
+  const ctx = canvas.getContext("2d");
+
+  // Get ranges
+  const xs = data.map(p => p[0]);
+  const ys = data.map(p => p[1]);
+  const xMin = Math.min(...xs);
+  const xMax = Math.max(...xs);
+  const yMin = Math.min(...ys);
+  const yMax = Math.max(...ys);
+
+  // Padding around plot
+  const pad = 0;
+  const w = canvas.width - pad * 2;
+  const h = canvas.height - pad * 2;
+
+  // Transform function (data → canvas coordinates)
+  function toCanvas(x, y) {
+    const cx = pad + (x - xMin) / (xMax - xMin) * w;
+    const cy = canvas.height - pad - (y - yMin) / (yMax - yMin) * h;
+    return [cx, cy];
+  }
+
+//   // Draw axes
+//   ctx.strokeStyle = "red";
+//   ctx.beginPath();
+//   ctx.moveTo(pad, pad);
+//   ctx.lineTo(pad, canvas.height - pad);
+//   ctx.lineTo(canvas.width - pad, canvas.height - pad);
+//   ctx.stroke();
+
+  // Draw line
+  ctx.strokeStyle = "blue";
+  ctx.beginPath();
+  data.forEach((p, i) => {
+    const [cx, cy] = toCanvas(p[0], p[1]);
+    if (i === 0) ctx.moveTo(cx, cy);
+    else ctx.lineTo(cx, cy);
+  });
+  ctx.stroke();
+</script>
+</body>
+</html>
+
+<svg width="600" height="300" viewBox="0 0 400 300" style="border:1px solid #ccc">
+  <polyline 
+    points="0,290 50,250 100,270 150,200 200,220, 20 290" 
+    fill="lightblue"
+    stroke="blue" 
+    stroke-width="2" />
+</svg>
+
