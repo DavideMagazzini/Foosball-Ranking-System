@@ -289,7 +289,7 @@ class DatabaseWrapper():
 
     def updatePlayerStats(self, playerId: str | ObjectId, new_stats: Stats) -> dict:
         """
-        Update given player stats with the new stats.
+        Updates, in the database, given player stats with the new stats.
 
         Parameters
         ----------

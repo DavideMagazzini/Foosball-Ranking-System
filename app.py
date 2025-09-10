@@ -98,6 +98,10 @@ def add_game():
     db_wrap.updatePlayerStats(playerId=game.blueAtkPlayer._id, new_stats=new_stats[3])
 
 
+    # Update players achievements
+    
+
+
     # Return a success message
     return jsonify({"status": "OK", "message": "Game added successfully"})
 
@@ -176,6 +180,48 @@ def calculate_stats_after_game(game: Game) -> list[Stats]:
         new_stats[3].atk_win_streak += 1
 
     return new_stats
+
+
+def update_player_achievements(playerId: str | ObjectId):
+    """
+    Update the player achievements based on their stats, scores and other variables.
+    If the achievement progress was never made on that achievement, a new document is created.
+
+    Parameters
+    ----------
+    playerId: str | ObjectId
+        The ID of the player whose achievements need to be updated.
+    """
+    
+    if not isinstance(playerId, ObjectId):
+        playerId = ObjectId(playerId)
+    
+    # Get all achievements from the database
+    all_achievements = db_wrap.getAllAchievements()
+
+    # For all the achievements, look for the document related to the player
+    for achievement in all_achievements:
+        player_achievement = db_wrap.player_achievements.find_one({
+            "player_id": playerId,
+            "achievement_id": achievement['_id']
+        })
+        
+        if not player_achievement:
+            # If the player has never started progress on this achievement, create a new document
+            player_achievement = {
+                "player_id": playerId,
+                "achievement_id": achievement['_id'],
+                "progress": 0,  # TODO: RIGUARDA QUESTO
+                "unlocked": False
+            }
+            db_wrap.player_achievements.insert_one(player_achievement)
+        
+        
+    # Update the progress on that and unlock it if the requirements are met
+
+
+    db_wrap.player_achievements.fi
+    
 
 
 if __name__ == "__main__":

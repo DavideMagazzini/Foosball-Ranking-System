@@ -688,14 +688,15 @@
         .then(data => {
           console.log('Success:', data);
           alert('Game added successfully!');
+          location.reload(); // Reload the page to update the scoreboard and history
         })
         .catch((error) => {
           console.error('Error:', error);
-          alert('Error adding game.');
+          alert('Error adding game: ' + error);
         });
         
         finalModal.style.display = "none";
-        location.reload(); // Reload the page to update the scoreboard and history
+        
       };
 
       teamBlueBtn.onclick = function () {
@@ -716,10 +717,11 @@
         .then(data => {
           console.log('Success:', data);
           alert('Game added successfully!');
+          location.reload(); // Reload the page to update the scoreboard and history
         })
         .catch((error) => {
           console.error('Error:', error);
-          alert('Error adding game.');
+          alert('Error adding game: ' + error);
         });
 
         finalModal.style.display = "none";
