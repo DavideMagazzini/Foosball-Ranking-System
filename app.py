@@ -3,10 +3,11 @@ from database.DatabaseWrapper import DatabaseWrapper
 import true_skill_calculator
 from models.player import Player
 from models.game import Game
-from models.score import Score
+from models.stats import Stats
 from models.team import Team
 from bson import json_util, ObjectId
 import json
+from dataclasses import asdict
 
 app = Flask(__name__)
 
@@ -76,6 +77,7 @@ def add_game():
     # Add the game to the database
     db_wrap.addGame(game)
 
+
     # Calculate the new skill ratings for players after the game
     new_scores = true_skill_calculator.calculate_skill_after_game(game)
 
@@ -84,7 +86,17 @@ def add_game():
     db_wrap.updatePlayerScore(game.redAtkPlayer, new_scores[1], isDefScore=False)
     db_wrap.updatePlayerScore(game.blueDefPlayer, new_scores[2], isDefScore=True)
     db_wrap.updatePlayerScore(game.blueAtkPlayer, new_scores[3], isDefScore=False)
-    print("Game added and players' scores updated successfully.")
+
+
+    # Calculate the new stats for each player
+    new_stats = calculate_stats_after_game(game=game)
+
+    # Update players stats
+    db_wrap.updatePlayerStats(playerId=game.redDefPlayer._id, new_stats=new_stats[0])
+    db_wrap.updatePlayerStats(playerId=game.redAtkPlayer._id, new_stats=new_stats[1])
+    db_wrap.updatePlayerStats(playerId=game.blueDefPlayer._id, new_stats=new_stats[2])
+    db_wrap.updatePlayerStats(playerId=game.blueAtkPlayer._id, new_stats=new_stats[3])
+
 
     # Return a success message
     return jsonify({"status": "OK", "message": "Game added successfully"})
@@ -101,19 +113,6 @@ def get_games():
         return jsonify({"status": "OK", "games": []})
     
     return json.loads(json_util.dumps(games))
-
-# # @app.route('/get-player-score/<player_id>', methods=['GET'])
-# @app.route('?player_id=<player_id>', methods=['GET'])
-# def get_player_score(player_id):
-#     """
-#     Endpoint to retrieve all games from the database.
-#     Returns a JSON list of games with player names and scores.
-#     """
-#     print("Prova delle cose" + player_id)
- 
-    
-#     # Return a success message
-#     return jsonify({"status": "OK", "message": "Game added successfully"})
 
 
 @app.route('/game-win-rate', methods=['POST'])
@@ -140,7 +139,43 @@ def player_profile(player_id):
     if not player:
         return jsonify({"status": "Error", "message": "Player not found"})
     
-    return json.loads(json_util.dumps(player))
+    return json.loads(json_util.dumps(asdict(player)))
+
+
+def calculate_stats_after_game(game: Game) -> list[Stats]:
+    """
+    Calculate the new stats for each player after a game.
+
+    Parameters
+    ----------
+    game: Game
+        The game through which compute the new stats
+
+    Returns
+    -------
+    list of Stats:
+        List of the new stats for the players, ordered in the same way as in the Game object
+    """
+    new_stats = [game.redDefPlayer.stats, game.redAtkPlayer.stats,
+                 game.blueDefPlayer.stats, game.blueAtkPlayer.stats]
+
+    # Increase games_played
+    for stat in new_stats:
+        stat.games_played += 1
+
+    # Update win streaks
+    if game.winnerTeamColor == 'red':
+        new_stats[0].def_win_streak += 1
+        new_stats[1].atk_win_streak += 1
+        new_stats[2].def_win_streak = 0
+        new_stats[3].atk_win_streak = 0
+    elif game.winnerTeamColor == 'blue':
+        new_stats[0].def_win_streak = 0
+        new_stats[1].atk_win_streak = 0
+        new_stats[2].def_win_streak += 1
+        new_stats[3].atk_win_streak += 1
+
+    return new_stats
 
 
 if __name__ == "__main__":

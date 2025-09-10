@@ -4,6 +4,8 @@ import datetime
 from models.game import Game
 from models.player import Player
 from models.score import Score
+from models.stats import Stats
+from models.achievement import Achievement
 from dataclasses import asdict
 from bson import ObjectId
 
@@ -18,6 +20,8 @@ class DatabaseWrapper():
         # Get the collections
         self.players = self.db['Players']
         self.games = self.db['Games']
+        self.achievements = self.db['Achievements']
+        self.player_achievements = self.db['Player_Achievements']
 
 
     def addPlayer(self, player: Player):
@@ -36,7 +40,7 @@ class DatabaseWrapper():
         result = self.players.insert_one(new_entry)
         return result
 
-    def updatePlayerScore(self, player: Player, new_score: Score, isDefScore: bool = True) -> dict:
+    def updatePlayerScore(self, player: Player, new_score: Score, new_prev_score: Score = None, isDefScore: bool = True) -> dict:
         """
         Update the player's scores, the new one and the old one, in the database.
 
@@ -46,6 +50,9 @@ class DatabaseWrapper():
             The player whose score is to be updated.
         new_score : Score
             The new score to be set for the player.
+        new_prev_score : Score, optional
+            The previous score to be set for the player. If nothing is passed, it gets automatically
+            copied from the actual score.
         isDefScore : bool, optional
             If True, updates the defensive score; if False, updates the attacking score. Defaults to True.
 
@@ -58,24 +65,25 @@ class DatabaseWrapper():
         filter = {
             '_id': player._id
         }
-        
+
+
         if isDefScore:
             new_score = {
                 '$set': {'def_score.mu': new_score.mu,
                          'def_score.sigma': new_score.sigma,
                          'def_score.rank': new_score.rank,
-                         'prev_def_score.mu': player.def_score.mu,
-                         'prev_def_score.sigma': player.def_score.sigma,
-                         'prev_def_score.rank': player.def_score.rank}
+                         'prev_def_score.mu': new_prev_score if new_prev_score else player.def_score.mu,
+                         'prev_def_score.sigma': new_prev_score if new_prev_score else player.def_score.sigma,
+                         'prev_def_score.rank': new_prev_score if new_prev_score else player.def_score.rank}
             }
         else:
             new_score = {
                 '$set': {'atk_score.mu': new_score.mu,
                          'atk_score.sigma': new_score.sigma,
                          'atk_score.rank': new_score.rank,
-                         'prev_atk_score.mu': player.atk_score.mu,
-                         'prev_atk_score.sigma': player.atk_score.sigma,
-                         'prev_atk_score.rank': player.atk_score.rank}
+                         'prev_atk_score.mu': new_prev_score if new_prev_score else player.atk_score.mu,
+                         'prev_atk_score.sigma': new_prev_score if new_prev_score else player.atk_score.sigma,
+                         'prev_atk_score.rank': new_prev_score if new_prev_score else player.atk_score.rank}
             }
 
         res = self.players.find_one_and_update(filter=filter, update=new_score)
@@ -133,7 +141,7 @@ class DatabaseWrapper():
         """
         if isinstance(player_id, str):
             player_id = ObjectId(player_id)
-        return self.players.find_one({'_id': player_id})
+        return Player(**self.players.find_one({'_id': player_id}))
     
     def getAllPlayers(self):
         """
@@ -155,7 +163,7 @@ class DatabaseWrapper():
         return self.games.find({})
 
 
-    def removeGameById(self, game_id: str | ObjectId):
+    def removeGameById(self, game_id: str | ObjectId) -> dict:
         """
         Removes a game from the database by its unique identifier.
 
@@ -173,7 +181,7 @@ class DatabaseWrapper():
         return self.games.delete_one({'_id': game_id})
     
 
-    def removeGameAndUpdateScores(self, game: Game):
+    def removeGameAndUpdateScores(self, game: Game) -> dict:
         """
         Removes a game from the database and updates the scores of the players involved in the game.
 
@@ -187,19 +195,25 @@ class DatabaseWrapper():
         dict
             The result of the delete operation.
         """
-        #TODO think about what happens to prev def score and if its ok
+        # 1. Update all the 4 player's scores with the scores that they had when they
+        #    played that game.
+        # 2. Delete the game from the database
 
         # Update red player's defensive score
-        self.updatePlayerScore(game.redDefPlayer, game.redDefPlayer.prev_def_score, isDefScore=True)
+        self.updatePlayerScore(game.redDefPlayer, new_score=game.redDefPlayer.def_score, 
+                               new_prev_score=game.redDefPlayer.prev_def_score, isDefScore=True)
         
         # Update red player's attacking score
-        self.updatePlayerScore(game.redAtkPlayer, game.redAtkPlayer.prev_atk_score, isDefScore=False)
+        self.updatePlayerScore(game.redAtkPlayer, new_score=game.redAtkPlayer.atk_score, 
+                               new_prev_score=game.redAtkPlayer.prev_atk_score, isDefScore=False)
         
         # Update blue player's defensive score
-        self.updatePlayerScore(game.blueDefPlayer, game.blueDefPlayer.prev_def_score, isDefScore=True)
+        self.updatePlayerScore(game.blueDefPlayer, new_score=game.blueDefPlayer.def_score,
+                               new_prev_score=game.blueDefPlayer.prev_def_score, isDefScore=True)
         
         # Update blue player's attacking score
-        self.updatePlayerScore(game.blueAtkPlayer, game.blueAtkPlayer.prev_atk_score, isDefScore=False)
+        self.updatePlayerScore(game.blueAtkPlayer, new_score=game.blueAtkPlayer.atk_score, 
+                               new_prev_score=game.blueAtkPlayer.prev_atk_score, isDefScore=False)
 
         # Remove the game from the database
         return self.removeGameById(game._id)
@@ -207,7 +221,7 @@ class DatabaseWrapper():
 
     def getPlayerScoreHistory(self, playerId: str | ObjectId) -> list[list[Score]]:
         """
-        Retrieves the score history of a player by their unique identifier.
+        Retrieves the defense and attack score history of a player by their unique identifier.
         
         Parameters
         ----------
@@ -234,22 +248,71 @@ class DatabaseWrapper():
             ]
         }).sort('date', 1)
 
-        # score_history = []
-        # for game in games:
-        #     score_history.append(Score(
-        #         mu=game['redDefPlayer']['def_score']['mu'] if game['redDefPlayer']['_id'] == playerId else))
+        def_score_history = []
+        atk_score_history = []
+
+        for game in games:
+            if game['redDefPlayer']['_id'] == playerId:
+                # The player was playing red defense
+                def_score_history.append(Score(**game['redDefPlayer']['def_score']))
+            elif game['redAtkPlayer']['_id'] == playerId:
+                # The player was playing red attack
+                atk_score_history.append(Score(**game['redAtkPlayer']['atk_score']))
+            elif game['blueDefPlayer']['_id'] == playerId:
+                # The player was playing blue defense
+                def_score_history.append(Score(**game['blueDefPlayer']['def_score']))
+            elif game['blueAtkPlayer']['_id'] == playerId:
+                # The player was playing blue attack
+                atk_score_history.append(Score(**game['blueAtkPlayer']['atk_score']))
+        
+        # Append last scores of the player
+        def_score_history.append(self.getPlayerById(playerId).def_score)
+        atk_score_history.append(self.getPlayerById(playerId).atk_score)
+
+
+        return [def_score_history, atk_score_history]
+    
+
+    def getAllAchievements(self):
+        """
+        Retrieves all the achievements from the database.
+ 
+        Returns
+        -------
+        pymongo.cursor.Cursor
+            A cursor to iterate over all achievements documents.
+        """
+
+        # return [Achievement(**doc) for doc in self.achievements.find({})] # SLOWS DOWN COMPUTATION
+        return self.achievements.find({})
+    
+
+    def updatePlayerStats(self, playerId: str | ObjectId, new_stats: Stats) -> dict:
+        """
+        Update given player stats with the new stats.
+
+        Parameters
+        ----------
+        playerId : str | ObjectId
+            The unique identifier of the player whose score history is to be retrieved.
+        new_stats: Stats
+            The new stats that will replace the player stats.
+            
+        Returns
+        -------
+        dict
+            The result of the update operation.
+        """
+        if isinstance(playerId, str):
+            playerId = ObjectId(playerId)
+
+        self.players.update_one({'_id': playerId}, {'$set': {'stats': asdict(new_stats)}})
+            
 
 
 
 if __name__ == '__main__':
     
-    player1 = Player('1', 'asda', 'asdn')
-    player2 = Player('123123', 'Coso', 'Dei cosis', 100, 20)
-    player3 = Player('fgh', 'Maremma', 'Maiala', 2100, 20)
-    player4 = Player('kasn', 'Puttana', 'Troia', 1002, 2011)
-
-    game = Game('12', datetime.datetime.now(), player1, player3, player2, player4, 'red')
     db_wrapper = DatabaseWrapper()
-
-    print(db_wrapper.getPlayerById('s'))
-
+    
+    achs = db_wrapper.getAllAchievements()
