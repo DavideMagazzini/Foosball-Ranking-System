@@ -8,6 +8,7 @@ from models.team import Team
 from bson import json_util, ObjectId
 import json
 from dataclasses import asdict
+from datetime import datetime, timezone
 
 app = Flask(__name__)
 
@@ -74,6 +75,17 @@ def add_game():
     data = json_util.loads(request.data)
     game = Game(**data)
 
+    #TODO: the player has to be loaded from the database otherwise if someone else added
+    # a game in the database before refreshing the page, the player given to this function
+    # is not updated by that game
+
+    # Update the game's players to avoid using old players docs
+    game.redDefPlayer = db_wrap.getPlayerById(player_id=game.redDefPlayer._id)
+    game.redAtkPlayer = db_wrap.getPlayerById(player_id=game.redAtkPlayer._id)
+    game.blueDefPlayer = db_wrap.getPlayerById(player_id=game.blueDefPlayer._id)
+    game.blueAtkPlayer = db_wrap.getPlayerById(player_id=game.blueAtkPlayer._id)
+
+
     # Add the game to the database
     db_wrap.addGame(game)
 
@@ -99,7 +111,12 @@ def add_game():
 
 
     # Update players achievements
-    
+    # update_player_achievements(player_id=game.redDefPlayer._id)
+    # update_player_achievements(player_id=game.redAtkPlayer._id)
+    # update_player_achievements(player_id=game.blueDefPlayer._id)
+    # update_player_achievements(player_id=game.blueAtkPlayer._id)
+
+
 
 
     # Return a success message
@@ -182,46 +199,63 @@ def calculate_stats_after_game(game: Game) -> list[Stats]:
     return new_stats
 
 
-def update_player_achievements(playerId: str | ObjectId):
+def update_player_achievements(player_id: str | ObjectId):
     """
     Update the player achievements based on their stats, scores and other variables.
     If the achievement progress was never made on that achievement, a new document is created.
 
     Parameters
     ----------
-    playerId: str | ObjectId
+    player_id: str | ObjectId
         The ID of the player whose achievements need to be updated.
     """
     
-    if not isinstance(playerId, ObjectId):
-        playerId = ObjectId(playerId)
+    if not isinstance(player_id, ObjectId):
+        player_id = ObjectId(player_id)
     
     # Get all achievements from the database
     all_achievements = db_wrap.getAllAchievements()
 
+    # Get the updated player from the database
+    player = db_wrap.getPlayerById(player_id=player_id)
+
     # For all the achievements, look for the document related to the player
+    # Update the progress
+    # Check if the progress has met the achievement requirement, if so unlock it
     for achievement in all_achievements:
         player_achievement = db_wrap.player_achievements.find_one({
-            "player_id": playerId,
+            "player_id": player_id,
             "achievement_id": achievement['_id']
         })
         
         if not player_achievement:
             # If the player has never started progress on this achievement, create a new document
             player_achievement = {
-                "player_id": playerId,
+                "player_id": player_id,
                 "achievement_id": achievement['_id'],
-                "progress": 0,  # TODO: RIGUARDA QUESTO
-                "unlocked": False
+                "progress": 0,  
+                "unlocked": False,
+                "unlocked_date": ''
             }
             db_wrap.player_achievements.insert_one(player_achievement)
         
+        # Update the progress on that
+        if achievement['criteria']['type'] == 'games_played':
+            player_achievement['progress'] = player.stats.games_played
+
+        elif achievement['criteria']['type'] == 'def_win_streak':
+            player_achievement['progress'] = player.stats.def_win_streak
+
+        elif achievement['criteria']['type'] == 'atk_win_streak':
+            player_achievement['progress'] = player.stats.atk_win_streak
+
+        # Unlock the player achievement if the requirements are met
+        # TODO: Add a field in criteria to decide the operation (>=, <=, ==, something else)
+        if player_achievement['progress'] >= achievement['criteria']['value']: 
+            player_achievement['unlocked'] = True
+            player_achievement['unlocked_date'] = datetime.now(timezone.utc)
         
-    # Update the progress on that and unlock it if the requirements are met
-
-
-    db_wrap.player_achievements.fi
-    
+        
 
 
 if __name__ == "__main__":
