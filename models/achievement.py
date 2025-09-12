@@ -5,7 +5,7 @@ from bson import ObjectId
 class Achievement:
     name: str
     description: str 
-    criteria: dict
+    criteria: list[dict]
     badge: str
     _id: ObjectId | str = None  # Optional, set when loaded from DB
 

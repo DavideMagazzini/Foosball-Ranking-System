@@ -9,6 +9,7 @@ from bson import json_util, ObjectId
 import json
 from dataclasses import asdict
 from datetime import datetime, timezone
+import operator
 
 app = Flask(__name__)
 
@@ -111,13 +112,10 @@ def add_game():
 
 
     # Update players achievements
-    # update_player_achievements(player_id=game.redDefPlayer._id)
-    # update_player_achievements(player_id=game.redAtkPlayer._id)
-    # update_player_achievements(player_id=game.blueDefPlayer._id)
-    # update_player_achievements(player_id=game.blueAtkPlayer._id)
-
-
-
+    update_player_achievements(player_id=game.redDefPlayer._id, game=game)
+    update_player_achievements(player_id=game.redAtkPlayer._id, game=game)
+    update_player_achievements(player_id=game.blueDefPlayer._id, game=game)
+    update_player_achievements(player_id=game.blueAtkPlayer._id, game=game)
 
     # Return a success message
     return jsonify({"status": "OK", "message": "Game added successfully"})
@@ -199,7 +197,51 @@ def calculate_stats_after_game(game: Game) -> list[Stats]:
     return new_stats
 
 
-def update_player_achievements(player_id: str | ObjectId):
+def findTeamMate(player: Player, game: Game) -> Player:
+    """
+    Helper function to find the teammate of a player in a game.
+
+    Parameters
+    ----------
+    player: Player
+        The player whose teammate has to be returned
+    game: Game
+        The game in which the player played.
+
+    Returns
+    -------
+    Player
+        The teammate of the player
+    """
+    if player._id == game.redDefPlayer._id: return game.redAtkPlayer
+    elif player._id == game.redAtkPlayer._id: return game.redDefPlayer
+    elif player._id == game.blueDefPlayer._id: return game.blueAtkPlayer
+    elif player._id == game.blueAtkPlayer._id: return game.blueDefPlayer
+
+
+def findPlayerOutcomeInGame(player: Player, game: Game) -> str:
+    """
+    Helper function to find the player outcome in a game ['winner', 'loser'].
+
+    Parameters
+    ----------
+    player: Player
+        The player whose teammate has to be returned
+    game: Game
+        The game in which the player played.
+
+    Returns
+    -------
+    str
+        The player outcome, between 'winner' and 'loser'
+    """
+    if player._id in [game.redDefPlayer._id, game.redAtkPlayer._id] and game.winnerTeamColor == 'red':
+        return 'winner'
+    else:
+        return 'loser'
+
+
+def update_player_achievements(player_id: str | ObjectId, game: Game):
     """
     Update the player achievements based on their stats, scores and other variables.
     If the achievement progress was never made on that achievement, a new document is created.
@@ -208,10 +250,13 @@ def update_player_achievements(player_id: str | ObjectId):
     ----------
     player_id: str | ObjectId
         The ID of the player whose achievements need to be updated.
+    game: Game
+        The game that the player has just played.
     """
     
     if not isinstance(player_id, ObjectId):
         player_id = ObjectId(player_id)
+
     
     # Get all achievements from the database
     all_achievements = db_wrap.getAllAchievements()
@@ -219,9 +264,33 @@ def update_player_achievements(player_id: str | ObjectId):
     # Get the updated player from the database
     player = db_wrap.getPlayerById(player_id=player_id)
 
+
+    ops = {
+            'eq': operator.eq,
+            'gt': operator.gt,
+            'lt': operator.lt,
+            'ge': operator.ge,
+            'le': operator.le,
+            'ne': operator.ne
+        }
+
+    # Retrieves the first operand for the criteria evaluation
+    criteria_types = {
+        'games_played': player.stats.games_played,
+        'def_win_streak': player.stats.def_win_streak,
+        'atk_win_streak': player.stats.atk_win_streak,
+        'datetime_time_hour': game.date.time().hour,
+        'teammate_id': findTeamMate(player, game)._id,
+        'player_outcome': findPlayerOutcomeInGame(player, game)
+    }
+
     # For all the achievements, look for the document related to the player
     # Update the progress
     # Check if the progress has met the achievement requirement, if so unlock it
+
+    # Maybe get just the achievements the have unlocked: False? To avoid checking
+    # an already unlocked one. In that case once it is unlocked it won't be updated
+    # anymore
     for achievement in all_achievements:
         player_achievement = db_wrap.player_achievements.find_one({
             "player_id": player_id,
@@ -240,23 +309,32 @@ def update_player_achievements(player_id: str | ObjectId):
             db_wrap.player_achievements.insert_one(player_achievement)
         
         # Update the progress on that
-        if achievement['criteria']['type'] == 'games_played':
+        if achievement['criteria'][0]['type'] == 'games_played':
             player_achievement['progress'] = player.stats.games_played
 
-        elif achievement['criteria']['type'] == 'def_win_streak':
+        elif achievement['criteria'][0]['type'] == 'def_win_streak':
             player_achievement['progress'] = player.stats.def_win_streak
 
-        elif achievement['criteria']['type'] == 'atk_win_streak':
+        elif achievement['criteria'][0]['type'] == 'atk_win_streak':
             player_achievement['progress'] = player.stats.atk_win_streak
 
         # Unlock the player achievement if the requirements are met
-        # TODO: Add a field in criteria to decide the operation (>=, <=, ==, something else)
-        if player_achievement['progress'] >= achievement['criteria']['value']: 
-            player_achievement['unlocked'] = True
-            player_achievement['unlocked_date'] = datetime.now(timezone.utc)
-        
         
 
+        # Same thing as criteria types can be done on the criteria value, to call a function if something has
+        # to be done on the second operand of the evaluation (ex. str -> datetime)
+        unlocked_success = True
+        for criteria in achievement['criteria']:
+            if ops[criteria['operation']](criteria_types[criteria['type']], criteria['value']) == False:
+                unlocked_success = False
+        
+        if unlocked_success:
+           db_wrap.unlockPlayerAchievement(playerAchievementId=player_achievement['_id'])
+
+        
+
+
+    
 
 if __name__ == "__main__":
     player1 = Player(name="Player1", last_name="One")

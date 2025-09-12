@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 from pymongo.results import InsertOneResult
-import datetime
+from datetime import datetime, timezone
 from models.game import Game
 from models.player import Player
 from models.score import Score
@@ -307,7 +307,29 @@ class DatabaseWrapper():
             playerId = ObjectId(playerId)
 
         self.players.update_one({'_id': playerId}, {'$set': {'stats': asdict(new_stats)}})
+
+    
+    def unlockPlayerAchievement(self, playerAchievementId: str | ObjectId, unlocked: bool = True) -> dict:
+        """
+        Unlock/Locks a player achievement by setting its unlocked state to what is passed. The default is unlocked = True.
+        The unlocked_date get also updated with the current time.
+
+        Parameters
+        ----------
+        playerAchievementId : str | ObjectId
+            The unique identifier of the player achievement whose unlocked state has to be updated.
+        unlocked: bool
+            The unlocked state of the player achievement. The default is True.
             
+        Returns
+        -------
+        dict
+            The result of the update operation.
+        """
+        if isinstance(playerAchievementId, str):
+            playerAchievementId = ObjectId(playerAchievementId)
+
+        self.player_achievements.update_one({'_id': playerAchievementId}, {'$set': {'unlocked': unlocked, 'unlocked_date': datetime.now(timezone.utc)}})
 
 
 
