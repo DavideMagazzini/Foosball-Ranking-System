@@ -6,6 +6,7 @@
   <title>Foosball Rankings</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
     body {
       font-family: 'Segoe UI', sans-serif;
       background-color: #f2f2f2;
@@ -355,7 +356,191 @@
       letter-spacing: 1px;
       z-index: 100;
     }
+
+    /* Player Profile Modal Styles */
+    .playerProfile-modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+        }
+    .playerProfile-modal-container {
+        width: 90%;
+        max-width: 600px;
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        padding: 24px;
+        position: relative;
+        animation: fadeIn 0.3s ease-in-out;
+        max-height: 90vh;
+        overflow-y: auto;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .playerProfile-modal-container::-webkit-scrollbar {
+        display: none;
+    }
+    .playerProfile-close-btn {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 28px;
+        font-weight: bold;
+        color: #555555;
+        cursor: pointer;
+        transition: color 0.3s;
+    }
+    .playerProfile-close-btn:hover {
+        color: #ff6b6b;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    .profile-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .player-avatar {
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+        border: 4px solid #8b5cf6;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .player-name {
+        margin-top: 16px;
+        font-size: 32px;
+        font-weight: 700;
+        background-image: linear-gradient(to right, #2563eb, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .stats-container {
+        display: grid;
+        gap: 24px;
+        margin-top: 32px;
+    }
+    .stats-container-grid {
+        grid-template-columns: 1fr;
+    }
+    @media (min-width: 768px) {
+        .stats-container-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    .stat-box {
+        background-color: #f3f4f6;
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+    }
+    .stat-box h3 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 8px;
+    }
+    .ranks-container {
+        display: flex;
+        justify-content: space-around;
+        text-align: center;
+    }
+    .ranks-container div {
+        flex: 1;
+    }
+    .rank-label {
+        font-size: 12px;
+        color: #6b7280;
+    }
+    .rank-value {
+        font-size: 24px;
+        font-weight: 700;
+    }
+    .rank-defense { color: #2563eb; }
+    .rank-attack { color: #d97706; }
+    .stats-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .stats-list li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #4b5563;
+    }
+    .stats-value {
+        font-weight: 600;
+    }
+    .games-played-value { color: #3b82f6; }
+    .win-streak-defense-value { color: #10b981; }
+    .win-streak-attack-value { color: #f97316; }
+    .achievements-section {
+        margin-top: 32px;
+    }
+    .achievements-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    @media (min-width: 768px) {
+        .achievements-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    .achievement-card {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 4px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: background-color 0.3s;
+        min-height: 70px;
+        
+    }
+    .unlocked {
+        background-color: #dcfce7;
+    }
+    .locked {
+        background-color: #e5e7eb;
+    }
+    .achievement-badge-container {
+        min-width: 50px;
+        height: 50px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        font-size: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .achievement-details p {
+        margin: 0;
+        font-weight: 700;
+    }
+    .achievement-details span {
+        font-size: 12px;
+    }
+    .unlocked .achievement-details p { color: #15803d; }
+    .unlocked .achievement-details span { color: #16a34a; }
+    .locked .achievement-details p { color: #374151; }
+    .locked .achievement-details span { color: #4b5563; }
   </style>
+  
 </head>
 <body>
 
@@ -469,61 +654,91 @@
   </div>
 
 
-<!-- Player profile modal -->
-  <div id="playerProfileModal" class="modal">
-      <div class="modal-content">
-          <h3 style="margin-bottom: 18px;">Player Profile</h3>
-          <div id="playerForm" style="width:100%; display:flex; flex-direction:row; align-items:center; gap:16px;">
-              <div style="width: 100%;text-align: center;">
-                  <p style="font-weight: bold">Defense</p>
-                  <div id="playerMuScores">
-                      <label for="playerMu" style="font-size:1.1em; color:#333; margin-bottom:4px;">Mu:</label>
-                      <label id="playerMuDefValue" style="font-size:1.1em; color:#333; margin-bottom:4px;">12</label>
-                  </div>
-                  <div id="playerSigmaDefScores">
-                      <label style="font-size:1.1em; color:#333; margin-bottom:4px;">Sigma:</label>
-                      <label id="playerSigmaDefValue" style="font-size:1.1em; color:#333; margin-bottom:4px;">12</label>
-                  </div>
-                  <div id="playerSigmaDefScores">
-                      <label style="font-size:1.1em; color:#333; margin-bottom:4px;">Rank:</label>
-                      <label id="playerRankDefValue" style="font-size:1.1em; color:#333; margin-bottom:4px;">12</label>
-                  </div>
-                  <svg width="100%" height="100px" viewBox="0 0 200 300" style="border:1px solid #ccc">
-                    <polyline 
-                      points="0,290 50,250 100,270 150,200 200,220, 20 290, 20 30" 
-                      fill="lightblue"
-                      stroke="blue" 
-                      stroke-width="2" />
-                  </svg>
-              </div>
-              <div style="width:100%; text-align: center;">
-                  <p style="font-weight: bold">Attack</p>
-                  <div id="playerMuScores">
-                      <label for="playerMu" style="font-size:1.1em; color:#333; margin-bottom:4px;">Mu:</label>
-                      <label id="playerMuAtkValue" style="font-size:1.1em; color:#333; margin-bottom:4px;">12</label>
-                  </div>
-                  <div id="playerSigmaDefScores">
-                      <label style="font-size:1.1em; color:#333; margin-bottom:4px;">Sigma:</label>
-                      <label id="playerSigmaAtkValue" style="font-size:1.1em; color:#333; margin-bottom:4px;">12</label>
-                  </div>
-                  <div id="playerSigmaDefScores">
-                      <label style="font-size:1.1em; color:#333; margin-bottom:4px;">Rank:</label>
-                      <label id="playerRankAtkValue" style="font-size:1.1em; color:#333; margin-bottom:4px;">12</label>
-                  </div>
-                  <svg width="100%" height="100px" viewBox="0 0 200 300" style="border:1px solid #ccc">
-                    <polyline 
-                      points="0 20,30 50,250 100,270 150,200 200,220, 20 290, 200 300"                      
-                      fill="lightblue"
-                      stroke="blue" 
-                      stroke-width="2" />
-                  </svg>
-              </div> 
+  <!-- Player profile modal -->
+  <div id="playerProfileModal" class="playerProfile-modal-overlay">
+      <div class="playerProfile-modal-container">
+          <span class="playerProfile-close-btn">&times;</span>
+          <div class="profile-header">
+              <img src="https://placehold.co/128x128/EEEEEE/333333?text=Avatar" alt="Player Avatar" class="player-avatar">
+              <h2 id="playerProfileName" class="player-name"></h2>
           </div>
-          <h4 style="margin-bottom: 18px;">Achievements</h4>
-          Work in progress
+
+          <!-- Ranks e Statistiche -->
+          <div class="stats-container stats-container-grid">
+              <!-- Ranks -->
+              <div class="stat-box">
+                  <h3>Rank</h3>
+                  <div class="ranks-container">
+                      <div>
+                          <p class="rank-label">Defense</p>
+                          <span id="rankDefense" class="rank-value rank-defense">👑 Platino I</span>
+                      </div>
+                      <div>
+                          <p class="rank-label">Attack</p>
+                          <span id="rankAttack" class="rank-value rank-attack">⚔️ Oro III</span>
+                      </div>
+                  </div>
+              </div>
+              <!-- Statistiche -->
+              <div class="stat-box">
+                  <h3>Statistics</h3>
+                  <ul class="stats-list">
+                      <li>
+                          <span>Games Played:</span>
+                          <span id="gamesPlayed" class="stats-value games-played-value">124</span>
+                      </li>
+                      <li>
+                          <span>Win Streak Defense:</span>
+                          <span id="winStreakDefense" class="stats-value win-streak-defense-value">5</span>
+                      </li>
+                      <li>
+                          <span>Win Streak Attack:</span>
+                          <span id="winStreakAttack" class="stats-value win-streak-attack-value">3</span>
+                      </li>
+                  </ul>
+              </div>
+          </div>
+
+          <!-- Achievements -->
+          <div class="achievements-section">
+              <h3 class="text-lg font-semibold text-gray-800 mb-4">Achievements</h3>
+              <div class="achievements-grid">
+                  <!-- Achievement sbloccato -->
+                  <div class="achievement-card unlocked">
+                      <div class="achievement-badge-container">😄</div>
+                      <div class="achievement-details">
+                          <p>Maestro Difensore</p>
+                          <span>Vinci 10 partite consecutive in difesa.</span>
+                      </div>
+                  </div>
+                  <!-- Achievement non sbloccato -->
+                  <div class="achievement-card locked">
+                      <div class="achievement-badge-container" style="background-image: url('https://placehold.co/50x50/333333/FFFFFF?text=🔒');"></div>
+                      <div class="achievement-details">
+                          <p>Re del Campo</p>
+                          <span>Raggiungi il rank Diamante in entrambi i ruoli.</span>
+                      </div>
+                  </div>
+                  <!-- Altri achievement... -->
+                  <div class="achievement-card unlocked">
+                      <div class="achievement-badge-container" style="background-image: url('https://placehold.co/50x50/333333/FFFFFF?text=🏅');"></div>
+                      <div class="achievement-details">
+                          <p>Spacca Record</p>
+                          <span>Gioca oltre 500 partite.</span>
+                      </div>
+                  </div>
+                  <div class="achievement-card locked">
+                      <div class="achievement-badge-container" style="background-image: url('https://placehold.co/50x50/333333/FFFFFF?text=🔒');"></div>
+                      <div class="achievement-details">
+                          <p>Leggenda Indistruttibile</p>
+                          <span>Vinci una partita con 1 solo punto vita.</span>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
       </div>
   </div>
-
 
   <footer class="author-footer">
   Made by Davide Magazzini in Poggibonsi
@@ -666,9 +881,7 @@
             document.getElementById('redWinRate').textContent = 'Win Rate: ' + (data.win_rate*100).toFixed(0) + '%';
             document.getElementById('blueWinRate').textContent = 'Win Rate: ' + (100 - data.win_rate*100).toFixed(0) + '%';
           })
-        }
-        
-      
+        }     
 
       teamRedBtn.onclick = function () {
         fetch('/add-game', {
@@ -910,10 +1123,13 @@
         .then(response => response.json())
         .then(player => {
           // Populate modal with player data
-          playerProfileModal.querySelector('h3').textContent = player.name + ' ' + player.last_name;
+          document.getElementById('playerProfileName').textContent = player.name + ' ' + player.last_name;
+          document.getElementById('rankDefense').textContent = player.def_score.rank.toFixed(0);
+          document.getElementById('rankAttack').innerHTML = player.atk_score.rank.toFixed(0);
           document.getElementById('playerMuDefValue').innerHTML = player.def_score.mu.toFixed(0);
           document.getElementById('playerSigmaDefValue').innerHTML = player.def_score.sigma.toFixed(0);
-          document.getElementById('playerRankDefValue').innerHTML = player.def_score.rank.toFixed(0);
+          document.getElementById('rankDefense').textContent = 10;
+
           document.getElementById('playerMuAtkValue').innerHTML = player.atk_score.mu.toFixed(0);
           document.getElementById('playerSigmaAtkValue').innerHTML = player.atk_score.sigma.toFixed(0);
           document.getElementById('playerRankAtkValue').innerHTML = player.atk_score.rank.toFixed(0);

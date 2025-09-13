@@ -294,7 +294,8 @@ def update_player_achievements(player_id: str | ObjectId, game: Game):
     for achievement in all_achievements:
         player_achievement = db_wrap.player_achievements.find_one({
             "player_id": player_id,
-            "achievement_id": achievement['_id']
+            "achievement_id": achievement['_id'],
+            "unlocked": False
         })
         
         if not player_achievement:

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profilo Giocatore</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f0f0;
+            color: #333333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .playerProfile-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .playerProfile-modal-container {
+            width: 90%;
+            max-width: 600px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            padding: 24px;
+            position: relative;
+            animation: fadeIn 0.3s ease-in-out;
+            max-height: 90vh;
+            overflow-y: auto;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .playerProfile-modal-container::-webkit-scrollbar {
+            display: none;
+        }
+        .playerProfile-close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #555555;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .playerProfile-close-btn:hover {
+            color: #ff6b6b;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .profile-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .player-avatar {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            border: 4px solid #8b5cf6;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .player-name {
+            margin-top: 16px;
+            font-size: 32px;
+            font-weight: 700;
+            background-image: linear-gradient(to right, #2563eb, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .stats-container {
+            display: grid;
+            gap: 24px;
+            margin-top: 32px;
+        }
+        .stats-container-grid {
+            grid-template-columns: 1fr;
+        }
+        @media (min-width: 768px) {
+            .stats-container-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        .stat-box {
+            background-color: #f3f4f6;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+        }
+        .stat-box h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        .ranks-container {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+        .ranks-container div {
+            flex: 1;
+        }
+        .rank-label {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .rank-value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .rank-defense { color: #2563eb; }
+        .rank-attack { color: #d97706; }
+        .stats-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .stats-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #4b5563;
+        }
+        .stats-value {
+            font-weight: 600;
+        }
+        .games-played-value { color: #3b82f6; }
+        .win-streak-defense-value { color: #10b981; }
+        .win-streak-attack-value { color: #f97316; }
+        .achievements-section {
+            margin-top: 32px;
+        }
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+        @media (min-width: 768px) {
+            .achievements-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        .achievement-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 4px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s;
+            min-height: 70px;
+            
+        }
+        .unlocked {
+            background-color: #dcfce7;
+        }
+        .locked {
+            background-color: #e5e7eb;
+        }
+        .achievement-badge-container {
+            min-width: 50px;
+            height: 50px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            font-size: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .achievement-details p {
+            margin: 0;
+            font-weight: 700;
+        }
+        .achievement-details span {
+            font-size: 12px;
+        }
+        .unlocked .achievement-details p { color: #15803d; }
+        .unlocked .achievement-details span { color: #16a34a; }
+        .locked .achievement-details p { color: #374151; }
+        .locked .achievement-details span { color: #4b5563; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+    <!-- Pulsante per aprire il modal (per la dimostrazione) -->
+    <button id="openModalBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-300">
+        Apri Profilo Giocatore
+    </button>
+
+    <!-- Modal del profilo giocatore -->
+    <div id="playerModal" class="playerProfile-modal-overlay">
+        <div class="playerProfile-modal-container">
+            <span class="playerProfile-close-btn">&times;</span>
+            <div class="profile-header">
+                <img src="https://placehold.co/128x128/EEEEEE/333333?text=Avatar" alt="Avatar del giocatore" class="player-avatar">
+                <h2 id="playerName" class="player-name">Nome Giocatore</h2>
+            </div>
+
+            <!-- Ranks e Statistiche -->
+            <div class="stats-container stats-container-grid">
+                <!-- Ranks -->
+                <div class="stat-box">
+                    <h3>Rank</h3>
+                    <div class="ranks-container">
+                        <div>
+                            <p class="rank-label">Difesa</p>
+                            <span id="rankDefense" class="rank-value rank-defense">👑 Platino I</span>
+                        </div>
+                        <div>
+                            <p class="rank-label">Attacco</p>
+                            <span id="rankAttack" class="rank-value rank-attack">⚔️ Oro III</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Statistiche -->
+                <div class="stat-box">
+                    <h3>Statistiche</h3>
+                    <ul class="stats-list">
+                        <li>
+                            <span>Giochi Giocati:</span>
+                            <span id="gamesPlayed" class="stats-value games-played-value">124</span>
+                        </li>
+                        <li>
+                            <span>Win Streak Difesa:</span>
+                            <span id="winStreakDefense" class="stats-value win-streak-defense-value">5</span>
+                        </li>
+                        <li>
+                            <span>Win Streak Attacco:</span>
+                            <span id="winStreakAttack" class="stats-value win-streak-attack-value">3</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Achievements -->
+            <div class="achievements-section">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Achievements</h3>
+                <div class="achievements-grid">
+                    <!-- Achievement sbloccato -->
+                    <div class="achievement-card unlocked">
+                        <div class="achievement-badge-container">😄</div>
+                        <div class="achievement-details">
+                            <p>Maestro Difensore</p>
+                            <span>Vinci 10 partite consecutive in difesa.</span>
+                        </div>
+                    </div>
+                    <!-- Achievement non sbloccato -->
+                    <div class="achievement-card locked">
+                        <div class="achievement-badge-container" style="background-image: url('https://placehold.co/50x50/333333/FFFFFF?text=🔒');"></div>
+                        <div class="achievement-details">
+                            <p>Re del Campo</p>
+                            <span>Raggiungi il rank Diamante in entrambi i ruoli.</span>
+                        </div>
+                    </div>
+                    <!-- Altri achievement... -->
+                    <div class="achievement-card unlocked">
+                        <div class="achievement-badge-container" style="background-image: url('https://placehold.co/50x50/333333/FFFFFF?text=🏅');"></div>
+                        <div class="achievement-details">
+                            <p>Spacca Record</p>
+                            <span>Gioca oltre 500 partite.</span>
+                        </div>
+                    </div>
+                    <div class="achievement-card locked">
+                        <div class="achievement-badge-container" style="background-image: url('https://placehold.co/50x50/333333/FFFFFF?text=🔒');"></div>
+                        <div class="achievement-details">
+                            <p>Leggenda Indistruttibile</p>
+                            <span>Vinci una partita con 1 solo punto vita.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const openModalBtn = document.getElementById('openModalBtn');
+        const playerModal = document.getElementById('playerModal');
+        const closeBtn = playerModal.querySelector('.playerProfile-close-btn');
+
+        // Funzione per aprire il modal
+        openModalBtn.addEventListener('click', () => {
+            playerModal.style.display = 'flex';
+        });
+
+        // Funzione per chiudere il modal
+        closeBtn.addEventListener('click', () => {
+            playerModal.style.display = 'none';
+        });
+
+        // Chiudi il modal cliccando al di fuori
+        window.addEventListener('click', (event) => {
+            if (event.target === playerModal) {
+                playerModal.style.display = 'none';
+            }
+        });
+
+        // Funzione per aggiornare i dati del profilo
+        function updateProfile(data) {
+            document.getElementById('playerName').textContent = data.name;
+            document.getElementById('rankDefense').textContent = data.rank.defense;
+            document.getElementById('rankAttack').textContent = data.rank.attack;
+            document.getElementById('gamesPlayed').textContent = data.stats.gamesPlayed;
+            document.getElementById('winStreakDefense').textContent = data.stats.winStreakDefense;
+            document.getElementById('winStreakAttack').textContent = data.stats.winStreakAttack;
+        }
+
+        // Dati di esempio per popolare il modal
+        const exampleData = {
+            name: "Giocatore Esempio",
+            rank: {
+                defense: "👑 Platino I",
+                attack: "⚔️ Oro III"
+            },
+            stats: {
+                gamesPlayed: 124,
+                winStreakDefense: 5,
+                winStreakAttack: 3
+            }
+        };
+
+        // Aggiorna il profilo con i dati di esempio all'avvio
+        document.addEventListener('DOMContentLoaded', () => {
+            updateProfile(exampleData);
+        });
+    </script>
+</body>
+</html>

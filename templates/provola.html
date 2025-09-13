@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profilo Giocatore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f0f0;
+            color: #333333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .playerProfile-modal-overlay {
+            display: none; /* Inizialmente nascosto */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .playerProfile-modal-container {
+            width: 90%;
+            max-width: 600px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            padding: 24px;
+            position: relative;
+            animation: fadeIn 0.3s ease-in-out;
+            /* Rende il modal scorrevole se il contenuto è troppo lungo */
+            max-height: 90vh;
+            overflow-y: auto;
+            /* Nasconde la barra di scorrimento per diversi browser */
+            -ms-overflow-style: none;  /* Per IE e Edge */
+            scrollbar-width: none;     /* Per Firefox */
+        }
+        .playerProfile-modal-container::-webkit-scrollbar {
+            display: none; /* Per Chrome, Safari e Opera */
+        }
+        .playerProfile-close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #555555;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .playerProfile-close-btn:hover {
+            color: #ff6b6b;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        /* Stili per le icone e i badge degli achievement */
+        .achievement-badge-container {
+            min-width: 50px;
+            height: 50px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+    <!-- Pulsante per aprire il modal (per la dimostrazione) -->
+    <button id="openModalBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-300">
+        Apri Profilo Giocatore
+    </button>
+
+    <!-- Modal del profilo giocatore -->
+    <div id="playerProfileModal" class="playerProfile-modal-overlay" style="display: flex;">
+        <div class="playerProfile-modal-container">
+            <span class="playerProfile-close-btn">&times;</span>
+            <div class="flex flex-col items-center">
+                <img src="https://placehold.co/128x128/EEEEEE/333333?text=Avatar" alt="Avatar del giocatore" class="w-24 h-24 rounded-full border-4 border-purple-500 shadow-md">
+                <h2 id="playerName" class="mt-4 text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-700">Nome Giocatore</h2>
+                <p class="text-sm text-gray-500">#12345</p>
+            </div>
+
+            <!-- Ranks e Statistiche -->
+            <div class="grid md:grid-cols-2 gap-6 mt-8">
+                <!-- Ranks -->
+                <div class="bg-gray-100 rounded-xl p-4 shadow-inner">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Rank</h3>
+                    <div class="flex justify-around text-center">
+                        <div>
+                            <p class="text-xs text-gray-500">Defense</p>
+                            <span id="rankDefense" class="text-2xl font-bold text-blue-600">👑</span>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Attack</p>
+                            <span id="rankAttack" class="text-2xl font-bold text-yellow-600">⚔️ Oro III</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Statistiche -->
+                <div class="bg-gray-100 rounded-xl p-4 shadow-inner">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Statistics</h3>
+                    <ul class="space-y-2">
+                        <li class="flex justify-between items-center text-gray-600">
+                            <span>Games Played:</span>
+                            <span id="gamesPlayed" class="font-semibold text-blue-500">124</span>
+                        </li>
+                        <li class="flex justify-between items-center text-gray-600">
+                            <span>Win Streak Defense:</span>
+                            <span id="winStreakDefense" class="font-semibold text-green-600">5</span>
+                        </li>
+                        <li class="flex justify-between items-center text-gray-600">
+                            <span>Win Streak Attack:</span>
+                            <span id="winStreakAttack" class="font-semibold text-orange-600">3</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Achievements -->
+            <div class="mt-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Achievements</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Achievement sbloccato -->
+                    <div class="bg-green-100 rounded-lg p-4 flex items-center gap-4 shadow-md">
+                        <div class="achievement-badge-container">😄</div>
+                        <div>
+                            <p class="font-bold text-green-700">Maestro Difensore</p>
+                            <p class="text-xs text-green-600">Vinci 10 partite consecutive in difesa.</p>
+                        </div>
+                    </div>
+                    <!-- Achievement non sbloccato -->
+                    <div class="bg-gray-200 rounded-lg p-4 flex items-center gap-4 shadow-md">
+                        <div class="achievement-badge-container">🐈‍⬛</div>
+                        <div>
+                            <p class="font-bold text-gray-600">Re del Campo</p>
+                            <p class="text-xs text-gray-500">Raggiungi il rank Diamante in entrambi i ruoli.</p>
+                        </div>
+                    </div>
+                    <!-- Altri achievement... -->
+                    <div class="bg-green-100 rounded-lg p-4 flex items-center gap-4 shadow-md">
+                        <div class="achievement-badge-container" style="background-image: url('https://placehold.co/50x50/333333/FFFFFF?text=🏅');"></div>
+                        <div>
+                            <p class="font-bold text-green-700">Spacca Record</p>
+                            <p class="text-xs text-green-600">Gioca oltre 500 partite.</p>
+                        </div>
+                    </div>
+                    <div class="bg-gray-200 rounded-lg p-4 flex items-center gap-4 border shadow-md">
+                        <div class="achievement-badge-container" style="background-image: url('https://placehold.co/50x50/333333/FFFFF?text=🔒');"></div>
+                        <div>
+                            <p class="font-bold text-gray-600">Leggenda Indistruttibile</p>
+                            <p class="text-xs text-gray-500">Vinci una partita con 1 solo punto vita.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const openModalBtn = document.getElementById('openModalBtn');
+        const playerProfileModal = document.getElementById('playerProfileModal');
+        const closePlayerProfileBtn = playerProfileModal.querySelector('.playerProfile-close-btn');
+
+        // Funzione per aprire il modal
+        openModalBtn.addEventListener('click', () => {
+            playerProfileModal.style.display = 'flex';
+        });
+
+        // Funzione per chiudere il modal
+        closePlayerProfileBtn.addEventListener('click', () => {
+            playerProfileModal.style.display = 'none';
+        });
+
+        // Chiudi il modal cliccando al di fuori
+        window.addEventListener('click', (event) => {
+            if (event.target === playerProfileModal) {
+                playerProfileModal.style.display = 'none';
+            }
+        });
+
+        // Funzione per aggiornare i dati del profilo
+        function updateProfile(data) {
+            document.getElementById('playerName').textContent = data.name;
+            document.getElementById('rankDefense').textContent = data.rank.defense;
+            document.getElementById('rankAttack').textContent = data.rank.attack;
+            document.getElementById('gamesPlayed').textContent = data.stats.gamesPlayed;
+            document.getElementById('winStreakDefense').textContent = data.stats.winStreakDefense;
+            document.getElementById('winStreakAttack').textContent = data.stats.winStreakAttack;
+        }
+
+        // Dati di esempio per popolare il modal
+        const exampleData = {
+            name: "Giocatore Esempio",
+            rank: {
+                defense: "🛡️ 1451",
+                attack: "⚔️ 1925"
+            },
+            stats: {
+                gamesPlayed: 124,
+                winStreakDefense: 5,
+                winStreakAttack: 3
+            }
+        };
+
+        // Aggiorna il profilo con i dati di esempio all'avvio
+        document.addEventListener('DOMContentLoaded', () => {
+            updateProfile(exampleData);
+        });
+    </script>
+</body>
+</html>
