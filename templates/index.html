@@ -369,6 +369,8 @@
       z-index: 1000;
       justify-content: center;
       align-items: center;
+      padding: 20px;
+      box-sizing: border-box;
         }
     .playerProfile-modal-container {
         width: 90%;
@@ -383,6 +385,7 @@
         overflow-y: auto;
         -ms-overflow-style: none;
         scrollbar-width: none;
+        height: 90%;
     }
     .playerProfile-modal-container::-webkit-scrollbar {
         display: none;
@@ -660,7 +663,7 @@
           <span class="playerProfile-close-btn">&times;</span>
           <div class="profile-header">
               <img src="https://placehold.co/128x128/EEEEEE/333333?text=Avatar" alt="Player Avatar" class="player-avatar">
-              <h2 id="playerProfileName" class="player-name"></h2>
+              <h2 id="playerProfileName" class="player-name">Player Name</h2>
           </div>
 
           <!-- Ranks e Statistiche -->
@@ -764,6 +767,7 @@
       const playerProfileModal = document.getElementById("playerProfileModal");
 
       const def_scoreboard = document.getElementById("def_scoreboard");
+      const closeBtn = playerProfileModal.querySelector('.playerProfile-close-btn');
 
       let allPlayers = [];
       let availablePlayers = [];
@@ -806,6 +810,10 @@
           alert('Error adding player.' + error);
         });
       }
+
+      closeBtn.addEventListener('click', () => {
+            playerProfileModal.style.display = 'none';
+        });
 
       function updateModalStyle() {
         modalContent.classList.remove("red-bg", "blue-bg");
