@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from models.player import Player
 from dataclasses import dataclass, field
+from bson import ObjectId
 
 @dataclass
 class Game:
@@ -10,6 +11,8 @@ class Game:
     blueAtkPlayer: Player | dict
     winnerTeamColor: str
     date: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    _id: ObjectId | str = None  # Optional, set when loaded from DB
+
     
     def __post_init__(self):
         if self.winnerTeamColor not in ['red', 'blue']: raise ValueError('winnerTeamColor has to be between red and blue')

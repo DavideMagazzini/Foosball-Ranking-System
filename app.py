@@ -112,10 +112,10 @@ def add_game():
 
 
     # Update players achievements
-    update_player_achievements(player_id=game.redDefPlayer._id, game=game)
-    update_player_achievements(player_id=game.redAtkPlayer._id, game=game)
-    update_player_achievements(player_id=game.blueDefPlayer._id, game=game)
-    update_player_achievements(player_id=game.blueAtkPlayer._id, game=game)
+    update_player_achievements_after_game(player_id=game.redDefPlayer._id, game=game)
+    update_player_achievements_after_game(player_id=game.redAtkPlayer._id, game=game)
+    update_player_achievements_after_game(player_id=game.blueDefPlayer._id, game=game)
+    update_player_achievements_after_game(player_id=game.blueAtkPlayer._id, game=game)
 
     # Return a success message
     return jsonify({"status": "OK", "message": "Game added successfully"})
@@ -158,10 +158,31 @@ def player_profile(player_id):
     if not player:
         return jsonify({"status": "Error", "message": "Player not found"})
     
-    return json.loads(json_util.dumps(asdict(player)))
+    profile = {'player': asdict(player),
+               'achievements': []}
+    
+    # Get all achievements
+    achievements = db_wrap.getAllAchievements()
+
+    # For every achievement, get the player progress on that (progress, unlocked, unlocked_date)
+    # If the document is not present yet, return progress = 0 and unlocked = false
+    for achievement in achievements:
+        playerAchievementData = db_wrap.getPlayerAchievementData(player_id, achievement['_id'])
+        if not playerAchievementData:
+            playerAchievementData = {
+                '_id': '',
+                'player_id': player._id,
+                'achievement_id': achievement['_id'],
+                'progress': 0,
+                'unlocked': False,
+                'unlocked_date': ''
+            }
+        profile['achievements'].append((achievement, playerAchievementData))
+    
+    return json.loads(json_util.dumps(profile))
 
 
-def calculate_stats_after_game(game: Game) -> list[Stats]:
+def calculate_stats_after_game(game: Game, updatePlayersFromDB: bool=False) -> list[Stats]:
     """
     Calculate the new stats for each player after a game.
 
@@ -169,12 +190,20 @@ def calculate_stats_after_game(game: Game) -> list[Stats]:
     ----------
     game: Game
         The game through which compute the new stats
+    updatePlayersFromDB: bool
+        If True, the players in the game object are updated from the database before calculating stats.
 
     Returns
     -------
     list of Stats:
         List of the new stats for the players, ordered in the same way as in the Game object
     """
+    if updatePlayersFromDB:
+        game.redDefPlayer = db_wrap.getPlayerById(player_id=game.redDefPlayer._id)
+        game.redAtkPlayer = db_wrap.getPlayerById(player_id=game.redAtkPlayer._id)
+        game.blueDefPlayer = db_wrap.getPlayerById(player_id=game.blueDefPlayer._id)
+        game.blueAtkPlayer = db_wrap.getPlayerById(player_id=game.blueAtkPlayer._id)
+
     new_stats = [game.redDefPlayer.stats, game.redAtkPlayer.stats,
                  game.blueDefPlayer.stats, game.blueAtkPlayer.stats]
 
@@ -235,15 +264,15 @@ def findPlayerOutcomeInGame(player: Player, game: Game) -> str:
     str
         The player outcome, between 'winner' and 'loser'
     """
-    if player._id in [game.redDefPlayer._id, game.redAtkPlayer._id] and game.winnerTeamColor == 'red':
+    if (player._id in [game.redDefPlayer._id, game.redAtkPlayer._id] and game.winnerTeamColor == 'red') or (player._id in [game.blueDefPlayer._id, game.blueAtkPlayer._id] and game.winnerTeamColor == 'blue'):
         return 'winner'
     else:
         return 'loser'
 
 
-def update_player_achievements(player_id: str | ObjectId, game: Game):
+def update_player_achievements_after_game(player_id: str | ObjectId, game: Game):
     """
-    Update the player achievements based on their stats, scores and other variables.
+    Update the player achievements after a game based on their stats, scores and other variables.
     If the achievement progress was never made on that achievement, a new document is created.
 
     Parameters
@@ -288,9 +317,6 @@ def update_player_achievements(player_id: str | ObjectId, game: Game):
     # Update the progress
     # Check if the progress has met the achievement requirement, if so unlock it
 
-    # Maybe get just the achievements the have unlocked: False? To avoid checking
-    # an already unlocked one. In that case once it is unlocked it won't be updated
-    # anymore
     for achievement in all_achievements:
         player_achievement = db_wrap.player_achievements.find_one({
             "player_id": player_id,
@@ -310,14 +336,14 @@ def update_player_achievements(player_id: str | ObjectId, game: Game):
             db_wrap.player_achievements.insert_one(player_achievement)
         
         # Update the progress on that
-        if achievement['criteria'][0]['type'] == 'games_played':
-            player_achievement['progress'] = player.stats.games_played
+        # if achievement['criteria'][0]['type'] == 'games_played':
+        #     player_achievement['progress'] = player.stats.games_played
 
-        elif achievement['criteria'][0]['type'] == 'def_win_streak':
-            player_achievement['progress'] = player.stats.def_win_streak
+        # elif achievement['criteria'][0]['type'] == 'def_win_streak':
+        #     player_achievement['progress'] = player.stats.def_win_streak
 
-        elif achievement['criteria'][0]['type'] == 'atk_win_streak':
-            player_achievement['progress'] = player.stats.atk_win_streak
+        # elif achievement['criteria'][0]['type'] == 'atk_win_streak':
+        #     player_achievement['progress'] = player.stats.atk_win_streak
 
         # Unlock the player achievement if the requirements are met
         
@@ -333,15 +359,42 @@ def update_player_achievements(player_id: str | ObjectId, game: Game):
            db_wrap.unlockPlayerAchievement(playerAchievementId=player_achievement['_id'])
 
         
+def recalculateAllPlayerStatsAndAchievements():
+        """
+        Recalculates the stats for all players and updates the achievements 
+        in the database based on all the games.
+        """
+        allGames = db_wrap.getAllGames()
+        allPlayers = db_wrap.getAllPlayers()
+
+        # Reset all players stats
+        for player in allPlayers:
+            db_wrap.updatePlayerStats(playerId=player['_id'], new_stats=Stats())
+
+        # Reset all player achievements
+        db_wrap.player_achievements.update_many({}, {'$set': {'progress': 0, 'unlocked': False, 'unlocked_date': ''}})
+
+        # Recalculate stats for all players based on all games
+        for game in allGames:
+            stats = calculate_stats_after_game(Game(**game), updatePlayersFromDB=True)
+            db_wrap.updatePlayerStats(playerId=game['redDefPlayer']['_id'], new_stats=stats[0])
+            db_wrap.updatePlayerStats(playerId=game['redAtkPlayer']['_id'], new_stats=stats[1])
+            db_wrap.updatePlayerStats(playerId=game['blueDefPlayer']['_id'], new_stats=stats[2])
+            db_wrap.updatePlayerStats(playerId=game['blueAtkPlayer']['_id'], new_stats=stats[3])
+
+            update_player_achievements_after_game(player_id=game['redDefPlayer']['_id'], game=Game(**game))
+            update_player_achievements_after_game(player_id=game['redAtkPlayer']['_id'], game=Game(**game))
+            update_player_achievements_after_game(player_id=game['blueDefPlayer']['_id'], game=Game(**game))
+            update_player_achievements_after_game(player_id=game['blueAtkPlayer']['_id'], game=Game(**game))
+
+
+        print("All player stats and achievements recalculated.")
 
 
     
 
 if __name__ == "__main__":
-    player1 = Player(name="Player1", last_name="One")
-    player2 = Player(name="Player2", last_name="Two")
-    player3 = Player(name="Player3", last_name="Three")
-    player4 = Player(name="Player4", last_name="Four")
-    game = Game(redDefPlayer=player1, redAtkPlayer=player2, blueDefPlayer=player3, blueAtkPlayer=player4, winnerTeamColor="red")
-
+    # Creates a backup of the database
+    # db_wrap.createBackup('./FRS_db_backup.json')
+    # recalculateAllPlayerStatsAndAchievements()
     app.run(debug=True)

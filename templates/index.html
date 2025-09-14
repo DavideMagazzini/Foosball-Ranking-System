@@ -380,7 +380,7 @@
         box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         padding: 24px;
         position: relative;
-        animation: fadeIn 0.3s ease-in-out;
+        animation: fadeIn 0.2s ease-in-out;
         max-height: 90vh;
         overflow-y: auto;
         -ms-overflow-style: none;
@@ -451,6 +451,7 @@
         font-weight: 600;
         color: #1f2937;
         margin-bottom: 8px;
+        margin-top: 0px;
     }
     .ranks-container {
         display: flex;
@@ -526,7 +527,7 @@
         background-size: contain;
         background-repeat: no-repeat;
         background-position: center;
-        font-size: 40px;
+        font-size: 36px;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -662,7 +663,7 @@
       <div class="playerProfile-modal-container">
           <span class="playerProfile-close-btn">&times;</span>
           <div class="profile-header">
-              <img src="https://placehold.co/128x128/EEEEEE/333333?text=Avatar" alt="Player Avatar" class="player-avatar">
+              <span class="player-avatar" alt="player-avatar"></span>
               <h2 id="playerProfileName" class="player-name">Player Name</h2>
           </div>
 
@@ -674,11 +675,30 @@
                   <div class="ranks-container">
                       <div>
                           <p class="rank-label">Defense</p>
-                          <span id="rankDefense" class="rank-value rank-defense">👑 Platino I</span>
+                          <span class="rank-value">🛡️</span>
+                          <span id="rankDefense" class="rank-value rank-defense">1000</span>
+                          <div>
+                            <span style="color:#6b7280">&mu;:</span>
+                            <span id="muDefense" style="color:#6b7280">123</span>
+                          </div>
+                          <div>
+                            <span style="color:#6b7280">&sigma;:</span>
+                            <span id="sigmaDefense" style="color:#6b7280">123</span>
+                          </div>
+                    
                       </div>
                       <div>
                           <p class="rank-label">Attack</p>
-                          <span id="rankAttack" class="rank-value rank-attack">⚔️ Oro III</span>
+                          <span class="rank-value">⚔️</span>
+                          <span id="rankAttack" class="rank-value rank-attack">1000</span>
+                          <div>
+                            <span style="color:#6b7280">&mu;:</span>
+                            <span id="muAttack" style="color:#6b7280">123</span>
+                          </div>
+                          <div>
+                            <span style="color:#6b7280">&sigma;:</span>
+                            <span id="sigmaAttack" style="color:#6b7280">123</span>
+                          </div>
                       </div>
                   </div>
               </div>
@@ -716,7 +736,7 @@
                   </div>
                   <!-- Achievement non sbloccato -->
                   <div class="achievement-card locked">
-                      <div class="achievement-badge-container" style="background-image: url('https://placehold.co/50x50/333333/FFFFFF?text=🔒');"></div>
+                      <div class="achievement-badge-container">🐈‍⬛</div>
                       <div class="achievement-details">
                           <p>Re del Campo</p>
                           <span>Raggiungi il rank Diamante in entrambi i ruoli.</span>
@@ -724,14 +744,14 @@
                   </div>
                   <!-- Altri achievement... -->
                   <div class="achievement-card unlocked">
-                      <div class="achievement-badge-container" style="background-image: url('https://placehold.co/50x50/333333/FFFFFF?text=🏅');"></div>
+                      <div class="achievement-badge-container">⚔️</div>
                       <div class="achievement-details">
-                          <p>Spacca Record</p>
+                           <p>Spacca Record</p>
                           <span>Gioca oltre 500 partite.</span>
                       </div>
                   </div>
                   <div class="achievement-card locked">
-                      <div class="achievement-badge-container" style="background-image: url('https://placehold.co/50x50/333333/FFFFFF?text=🔒');"></div>
+                      <div class="achievement-badge-container">⚔️</div>
                       <div class="achievement-details">
                           <p>Leggenda Indistruttibile</p>
                           <span>Vinci una partita con 1 solo punto vita.</span>
@@ -1129,18 +1149,33 @@
           }
         })
         .then(response => response.json())
-        .then(player => {
+        .then(profile => {
           // Populate modal with player data
-          document.getElementById('playerProfileName').textContent = player.name + ' ' + player.last_name;
-          document.getElementById('rankDefense').textContent = player.def_score.rank.toFixed(0);
-          document.getElementById('rankAttack').innerHTML = player.atk_score.rank.toFixed(0);
-          document.getElementById('playerMuDefValue').innerHTML = player.def_score.mu.toFixed(0);
-          document.getElementById('playerSigmaDefValue').innerHTML = player.def_score.sigma.toFixed(0);
-          document.getElementById('rankDefense').textContent = 10;
-
-          document.getElementById('playerMuAtkValue').innerHTML = player.atk_score.mu.toFixed(0);
-          document.getElementById('playerSigmaAtkValue').innerHTML = player.atk_score.sigma.toFixed(0);
-          document.getElementById('playerRankAtkValue').innerHTML = player.atk_score.rank.toFixed(0);
+          document.getElementById('playerProfileName').textContent = profile.player.name + ' ' + profile.player.last_name;
+          document.getElementById('rankDefense').textContent = profile.player.def_score.rank.toFixed(0);
+          document.getElementById('muDefense').innerHTML = profile.player.def_score.mu.toFixed(0);
+          document.getElementById('sigmaDefense').innerHTML = profile.player.def_score.sigma.toFixed(0);
+          document.getElementById('rankAttack').innerHTML = profile.player.atk_score.rank.toFixed(0);
+          document.getElementById('muAttack').innerHTML = profile.player.atk_score.mu.toFixed(0);
+          document.getElementById('sigmaAttack').innerHTML = profile.player.atk_score.sigma.toFixed(0);
+          document.getElementById('gamesPlayed').textContent = profile.player.stats.games_played;
+          document.getElementById('winStreakDefense').textContent = profile.player.stats.def_win_streak;
+          document.getElementById('winStreakAttack').textContent = profile.player.stats.atk_win_streak;
+          
+          // Load achievements
+          const achievementsGrid = playerProfileModal.querySelector('.achievements-grid');
+          achievementsGrid.innerHTML = ''; // Clear previous achievements
+          profile.achievements.forEach(achievement => {
+            let achievementCard = document.createElement('div');
+            achievementCard.className = achievement[1].unlocked ? 'achievement-card unlocked':'achievement-card locked';
+            achievementCard.innerHTML = `
+                      <div class="achievement-badge-container">${achievement[0].badge}</div>
+                      <div class="achievement-details">
+                          <p>${achievement[0].name}</p>
+                          <span>${achievement[0].description}</span>
+                      </div>`;
+            achievementsGrid.appendChild(achievementCard);
+          });
           })
 
       };
