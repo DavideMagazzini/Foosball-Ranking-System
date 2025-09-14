@@ -213,15 +213,28 @@ def calculate_stats_after_game(game: Game, updatePlayersFromDB: bool=False) -> l
 
     # Update win streaks
     if game.winnerTeamColor == 'red':
+        # Read team
         new_stats[0].def_win_streak += 1
         new_stats[1].atk_win_streak += 1
+        new_stats[0].def_loss_streak = 0
+        new_stats[1].atk_loss_streak = 0
+
+        # Blue team
         new_stats[2].def_win_streak = 0
         new_stats[3].atk_win_streak = 0
+        new_stats[2].def_loss_streak += 1
+        new_stats[3].atk_loss_streak += 1
     elif game.winnerTeamColor == 'blue':
         new_stats[0].def_win_streak = 0
         new_stats[1].atk_win_streak = 0
+        new_stats[0].def_loss_streak += 1
+        new_stats[1].atk_loss_streak += 1
+
+        # Blue team
         new_stats[2].def_win_streak += 1
         new_stats[3].atk_win_streak += 1
+        new_stats[2].def_loss_streak = 0
+        new_stats[3].atk_loss_streak = 0
 
     return new_stats
 
@@ -308,6 +321,8 @@ def update_player_achievements_after_game(player_id: str | ObjectId, game: Game)
         'games_played': player.stats.games_played,
         'def_win_streak': player.stats.def_win_streak,
         'atk_win_streak': player.stats.atk_win_streak,
+        'def_loss_streak': player.stats.def_loss_streak,
+        'atk_loss_streak': player.stats.atk_loss_streak,
         'datetime_time_hour': game.date.time().hour,
         'teammate_id': findTeamMate(player, game)._id,
         'player_outcome': findPlayerOutcomeInGame(player, game)

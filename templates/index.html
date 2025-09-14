@@ -712,11 +712,19 @@
                       </li>
                       <li>
                           <span>Win Streak Defense:</span>
-                          <span id="winStreakDefense" class="stats-value win-streak-defense-value">5</span>
+                          <span id="winStreakDefense" class="stats-value win-streak-defense-value">0</span>
                       </li>
                       <li>
                           <span>Win Streak Attack:</span>
-                          <span id="winStreakAttack" class="stats-value win-streak-attack-value">3</span>
+                          <span id="winStreakAttack" class="stats-value win-streak-attack-value">0</span>
+                      </li>
+                      <li>
+                          <span>Loss Streak Defense:</span>
+                          <span id="lossStreakDefense" class="stats-value win-streak-defense-value">0</span>
+                      </li>
+                      <li>
+                          <span>Loss Streak Attack:</span>
+                          <span id="lossStreakAttack" class="stats-value win-streak-attack-value">0</span>
                       </li>
                   </ul>
               </div>
@@ -1161,6 +1169,8 @@
           document.getElementById('gamesPlayed').textContent = profile.player.stats.games_played;
           document.getElementById('winStreakDefense').textContent = profile.player.stats.def_win_streak;
           document.getElementById('winStreakAttack').textContent = profile.player.stats.atk_win_streak;
+          document.getElementById('lossStreakDefense').textContent = profile.player.stats.def_loss_streak;
+          document.getElementById('lossStreakAttack').textContent = profile.player.stats.atk_loss_streak;
           
           // Load achievements
           const achievementsGrid = playerProfileModal.querySelector('.achievements-grid');
