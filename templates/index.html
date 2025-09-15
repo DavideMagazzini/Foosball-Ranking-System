@@ -733,6 +733,7 @@
           <!-- Achievements -->
           <div class="achievements-section">
               <h3 class="text-lg font-semibold text-gray-800 mb-4">Achievements</h3>
+              <h4 id="unlockedAchievementsCount" style="font-size:0.9em; color:#555;">Unlocked: 0/0</h4>
               <div class="achievements-grid">
                   <!-- Achievement sbloccato -->
                   <div class="achievement-card unlocked">
@@ -1175,6 +1176,7 @@
           // Load achievements
           const achievementsGrid = playerProfileModal.querySelector('.achievements-grid');
           achievementsGrid.innerHTML = ''; // Clear previous achievements
+          let unlockedCount = 0;
           profile.achievements.forEach(achievement => {
             let achievementCard = document.createElement('div');
             achievementCard.className = achievement[1].unlocked ? 'achievement-card unlocked':'achievement-card locked';
@@ -1185,7 +1187,11 @@
                           <span>${achievement[0].description}</span>
                       </div>`;
             achievementsGrid.appendChild(achievementCard);
+            if (achievement[1].unlocked) {
+              unlockedCount++;
+            }
           });
+          document.getElementById('unlockedAchievementsCount').textContent = `Unlocked: ${unlockedCount}/${profile.achievements.length}`;
           })
 
       };
