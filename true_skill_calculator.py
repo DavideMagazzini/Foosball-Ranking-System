@@ -77,7 +77,7 @@ def calculate_win_rate(team1: Team, team2: Team) -> float:
     sum_sigma = sum([r.sigma ** 2 for r in team1_ratings + team2_ratings])
     size = len(team1_ratings) + len(team2_ratings)
 
-    beta = 25 / 6  # Default beta value in TrueSkill
+    beta = 1000 / 6  # Default beta value in TrueSkill
     denom = sqrt(size * (beta ** 2) + sum_sigma)
     
     win_rate = norm.cdf(delta_mu / denom)
