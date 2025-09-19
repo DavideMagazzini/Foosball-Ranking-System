@@ -2,6 +2,7 @@ from models.score import Score
 from models.stats import Stats
 from dataclasses import dataclass, field
 from bson import ObjectId
+import linecache
 
 @dataclass
 class Player:
@@ -13,6 +14,7 @@ class Player:
     prev_atk_score: Score = field(default_factory=Score)
     stats: Stats | dict = field(default_factory=Stats)
     _id: ObjectId | str = None  # Optional, set when loaded from DB
+    avatar: str = field(default=None)
 
     def __post_init__(self):
         if not self.name or not self.last_name:
@@ -28,4 +30,9 @@ class Player:
             self.prev_atk_score = Score(**self.prev_atk_score)
         if isinstance(self.stats, dict):
             self.stats = Stats(**self.stats)
+
+        if not self.avatar:
+            emoji_index = hash(self.name + self.last_name) % 352
+            self.avatar = linecache.getline("data/emoji_list.txt", emoji_index + 1).removesuffix('\n')
+
 

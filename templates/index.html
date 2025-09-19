@@ -416,14 +416,19 @@
         width: 96px;
         height: 96px;
         border-radius: 50%;
-        border: 4px solid #8b5cf6;
+        border-bottom: 4px solid #8b5cf6;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        font-size: 50px;
+        justify-content: center;
+        align-items: center;
+        display: flex;
     }
     .player-name {
         margin-top: 16px;
         font-size: 32px;
         font-weight: 700;
         background-image: linear-gradient(to right, #2563eb, #8b5cf6);
+        background-clip: border-box;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
@@ -663,7 +668,7 @@
       <div class="playerProfile-modal-container">
           <span class="playerProfile-close-btn">&times;</span>
           <div class="profile-header">
-              <span class="player-avatar" alt="player-avatar"></span>
+              <span class="player-avatar" alt="player-avatar" id="player-avatar"></span>
               <h2 id="playerProfileName" class="player-name">Player Name</h2>
           </div>
 
@@ -1172,6 +1177,7 @@
           document.getElementById('winStreakAttack').textContent = profile.player.stats.atk_win_streak;
           document.getElementById('lossStreakDefense').textContent = profile.player.stats.def_loss_streak;
           document.getElementById('lossStreakAttack').textContent = profile.player.stats.atk_loss_streak;
+          document.getElementById('player-avatar').textContent = profile.player.avatar;
           
           // Load achievements
           const achievementsGrid = playerProfileModal.querySelector('.achievements-grid');
