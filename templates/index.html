@@ -1202,8 +1202,15 @@
           });
           
           // Load rank chart
-          const ctx = document.getElementById('rankChart').getContext('2d');
-          const rankChart = new Chart(ctx, {
+          const canvas = document.getElementById('rankChart');
+          const ctx = canvas.getContext('2d');
+
+          // Destroy prev chart instance if drawn
+          if (canvas.chartInstance) {
+            canvas.chartInstance.destroy();
+          }
+        
+          canvas.chartInstance = new Chart(ctx, {
             type: 'line',
             data: {
               labels: profile.scores_history.def_score.map((_, index) => index + 1),
@@ -1236,9 +1243,7 @@
       window.onload = function() {
         console.log('Page loaded, loading scoreboard...');
         loadPlayers();
-        loadGamesHistory();
-        // loadScoreboard();
-  
+        loadGamesHistory();  
       }
 
       window.onclick = function (event) {
