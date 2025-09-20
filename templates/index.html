@@ -707,7 +707,7 @@
                           </div>
                       </div>
                   </div>
-                  <canvas id="rankChart"></canvas>
+                  <canvas id="rankChart" style="margin-top: 8px;"></canvas>
 
               </div>
               <!-- Statistiche -->
@@ -1209,18 +1209,27 @@
           if (canvas.chartInstance) {
             canvas.chartInstance.destroy();
           }
-        
+          
+          labels = profile.scores_history.def_score.length > profile.scores_history.atk_score.length ? profile.scores_history.def_score : profile.scores_history.atk_score;
           canvas.chartInstance = new Chart(ctx, {
             type: 'line',
             data: {
-              labels: profile.scores_history.def_score.map((_, index) => index + 1),
+              labels: labels.map((_, index) => index),
               datasets: [
                 {
-                  label: 'Defense Rank',
+                  label: 'Defense',
                   data: profile.scores_history.def_score,
                   borderColor: 'rgba(37, 99, 235, 1)',
                   backgroundColor: 'rgba(37, 99, 235, 0.2)',
-                  fill: false,
+                  fill: true,
+                  tension: 0.1
+                },
+                {
+                  label: 'Attack',
+                  data: profile.scores_history.atk_score,
+                  borderColor: 'rgba(200, 99, 35, 1)',
+                  backgroundColor: 'rgba(200, 99, 35, 0.2)',
+                  fill: true,
                   tension: 0.1
                 }
               ]
