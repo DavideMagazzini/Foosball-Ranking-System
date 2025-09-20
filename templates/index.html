@@ -1200,7 +1200,8 @@
               unlockedCount++;
             }
           });
-          
+          document.getElementById('unlockedAchievementsCount').textContent = `Unlocked: ${unlockedCount}/${profile.achievements.length}`;
+
           // Load rank chart
           const canvas = document.getElementById('rankChart');
           const ctx = canvas.getContext('2d');

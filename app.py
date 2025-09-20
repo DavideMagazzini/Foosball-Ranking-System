@@ -331,7 +331,11 @@ def update_player_achievements_after_game(player_id: str | ObjectId, game: Game)
         'atk_loss_streak': player.stats.atk_loss_streak,
         'datetime_time_hour': game.date.time().hour,
         'teammate_id': findTeamMate(player, game)._id,
-        'player_outcome': findPlayerOutcomeInGame(player, game)
+        'player_outcome': findPlayerOutcomeInGame(player, game),
+        'def_rank': player.def_score.rank,
+        'atk_rank': player.atk_score.rank,
+        'def_sigma': player.def_score.sigma,
+        'atk_sigma': player.atk_score.sigma
     }
 
     # For all the achievements, look for the document related to the player
