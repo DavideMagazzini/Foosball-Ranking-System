@@ -159,7 +159,8 @@ def player_profile(player_id):
         return jsonify({"status": "Error", "message": "Player not found"})
     
     profile = {'player': asdict(player),
-               'achievements': []}
+               'achievements': [],
+               'scores_history': {'def_score': [], 'atk_score': []}}
     
     # Get all achievements
     achievements = db_wrap.getAllAchievements()
@@ -178,6 +179,11 @@ def player_profile(player_id):
                 'unlocked_date': ''
             }
         profile['achievements'].append((achievement, playerAchievementData))
+
+    # Get ranks history
+    scores = db_wrap.getPlayerRankHistory(player_id)
+    profile['scores_history']['def_score'] = scores[0]
+    profile['scores_history']['atk_score'] = scores[1]
     
     return json.loads(json_util.dumps(profile))
 

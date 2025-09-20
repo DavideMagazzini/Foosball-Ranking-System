@@ -276,6 +276,61 @@ class DatabaseWrapper():
         return [def_score_history, atk_score_history]
     
 
+    def getPlayerRankHistory(self, playerId: str | ObjectId) -> list[list[Score]]:
+        """
+        Retrieves JUST the defense and attack rank history of a player by their unique identifier.
+        
+        Parameters
+        ----------
+        playerId : str | ObjectId
+            The unique identifier of the player whose score history is to be retrieved.
+            
+        Returns
+        -------
+        two lists of Score
+            The first list contains the defensive rank history, 
+            and the second list contains the attacking rank history.
+        """
+
+        if isinstance(playerId, str):
+            playerId = ObjectId(playerId)
+
+        # Find all games where the player participated
+        games = self.games.find({
+            '$or': [
+                {'redDefPlayer._id': playerId},
+                {'redAtkPlayer._id': playerId},
+                {'blueDefPlayer._id': playerId},
+                {'blueAtkPlayer._id': playerId}
+            ]
+        }).sort('date', 1)
+
+        def_rank_history = []
+        atk_rank_history = []
+
+        for game in games:
+            if game['redDefPlayer']['_id'] == playerId:
+                # The player was playing red defense
+                def_rank_history.append(game['redDefPlayer']['def_score']['rank'])
+            elif game['redAtkPlayer']['_id'] == playerId:
+                # The player was playing red attack
+                atk_rank_history.append(game['redAtkPlayer']['atk_score']['rank'])
+            elif game['blueDefPlayer']['_id'] == playerId:
+                # The player was playing blue defense
+                def_rank_history.append(game['blueDefPlayer']['def_score']['rank'])
+            elif game['blueAtkPlayer']['_id'] == playerId:
+                # The player was playing blue attack
+                atk_rank_history.append(game['blueAtkPlayer']['atk_score']['rank'])     
+
+        # Append last ranks of the player
+        updated_player = self.getPlayerById(playerId)
+        def_rank_history.append(updated_player.def_score.rank)
+        atk_rank_history.append(updated_player.atk_score.rank)
+
+
+        return [def_rank_history, atk_rank_history]
+    
+
     def getAllAchievements(self):
         """
         Retrieves all the achievements from the database.

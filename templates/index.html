@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Foosball Rankings</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
     body {
@@ -706,6 +707,8 @@
                           </div>
                       </div>
                   </div>
+                  <canvas id="rankChart"></canvas>
+
               </div>
               <!-- Statistiche -->
               <div class="stat-box">
@@ -1197,8 +1200,35 @@
               unlockedCount++;
             }
           });
-          document.getElementById('unlockedAchievementsCount').textContent = `Unlocked: ${unlockedCount}/${profile.achievements.length}`;
-          })
+          
+          // Load rank chart
+          const ctx = document.getElementById('rankChart').getContext('2d');
+          const rankChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: profile.scores_history.def_score.map((_, index) => index + 1),
+              datasets: [
+                {
+                  label: 'Defense Rank',
+                  data: profile.scores_history.def_score,
+                  borderColor: 'rgba(37, 99, 235, 1)',
+                  backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                  fill: false,
+                  tension: 0.1
+                }
+              ]
+            },
+            options: {
+              responsive: true,
+              scales: {
+                y: {
+                  beginAtZero: false
+                }
+              }
+            }
+        });
+
+        })
 
       };
 
