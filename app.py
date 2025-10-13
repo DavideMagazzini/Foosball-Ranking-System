@@ -23,6 +23,13 @@ def home():
     """
     return render_template("index.html")
 
+@app.route("/ping")
+def ping():
+    """
+    Returns the rendered Ping html page.
+    """
+    return render_template("ping.html")
+
 @app.route('/add-player', methods=['POST'])
 def add_player():
     """
