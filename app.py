@@ -352,9 +352,7 @@ def update_player_achievements_after_game(player_id: str | ObjectId, game: Game)
     for achievement in all_achievements:
         player_achievement = db_wrap.player_achievements.find_one({
             "player_id": player_id,
-            "achievement_id": achievement['_id'],
-            "unlocked": False
-        })
+            "achievement_id": achievement['_id']})
         
         if not player_achievement:
             # If the player has never started progress on this achievement, create a new document
@@ -366,6 +364,9 @@ def update_player_achievements_after_game(player_id: str | ObjectId, game: Game)
                 "unlocked_date": ''
             }
             db_wrap.player_achievements.insert_one(player_achievement)
+        
+        # If already unlocked skip the criteria evaluation
+        if player_achievement['unlocked']: continue
         
         # Update the progress on that
         # if achievement['criteria'][0]['type'] == 'games_played':
